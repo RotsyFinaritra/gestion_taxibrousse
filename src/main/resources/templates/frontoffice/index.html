@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" th:replace="~{frontoffice/layout :: layout (~{::title}, ~{::content})}">
+<head>
+    <title>Taxi Brousse - Accueil</title>
+</head>
+<body>
+    <th:block th:fragment="content">
+        <!-- Hero Section -->
+        <section class="hero-section text-center">
+            <div class="container">
+                <h1 class="display-3 fw-bold mb-4">
+                    <i class="bi bi-bus-front-fill"></i> Taxi Brousse
+                </h1>
+                <p class="lead mb-5">Trouvez et réservez vos trajets en toute simplicité</p>
+                <a href="/trajets/recherche" class="btn btn-light btn-lg">
+                    <i class="bi bi-search"></i> Rechercher un trajet
+                </a>
+            </div>
+        </section>
+
+        <!-- Features Section -->
+        <section class="py-5">
+            <div class="container">
+                <div class="row g-4">
+                    <div class="col-md-4">
+                        <div class="card h-100 text-center shadow-sm">
+                            <div class="card-body">
+                                <i class="bi bi-geo-alt-fill text-primary" style="font-size: 3rem;"></i>
+                                <h5 class="card-title mt-3">Multiples Destinations</h5>
+                                <p class="card-text">Voyagez à travers Madagascar avec nos nombreuses destinations disponibles.</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="card h-100 text-center shadow-sm">
+                            <div class="card-body">
+                                <i class="bi bi-cash-coin text-success" style="font-size: 3rem;"></i>
+                                <h5 class="card-title mt-3">Prix Compétitifs</h5>
+                                <p class="card-text">Bénéficiez des meilleurs tarifs pour tous vos déplacements.</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="card h-100 text-center shadow-sm">
+                            <div class="card-body">
+                                <i class="bi bi-clock-fill text-info" style="font-size: 3rem;"></i>
+                                <h5 class="card-title mt-3">Réservation Rapide</h5>
+                                <p class="card-text">Réservez vos places en quelques clics seulement.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- CTA Section -->
+        <section class="bg-light py-5">
+            <div class="container text-center">
+                <h2 class="mb-4">Prêt à partir ?</h2>
+                <p class="lead mb-4">Trouvez votre prochain trajet maintenant</p>
+                <a href="/trajets/recherche" class="btn btn-primary btn-lg">
+                    <i class="bi bi-arrow-right-circle"></i> Commencer
+                </a>
+            </div>
+        </section>
+    </th:block>
+</body>
+</html>

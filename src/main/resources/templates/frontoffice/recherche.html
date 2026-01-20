@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" th:replace="~{frontoffice/layout :: layout (~{::title}, ~{::content})}">
+<head>
+    <title>Rechercher un trajet - Taxi Brousse</title>
+</head>
+<body>
+    <th:block th:fragment="content">
+        <section class="py-5">
+            <div class="container">
+                <h1 class="mb-4 text-center">
+                    <i class="bi bi-search"></i> Rechercher un trajet
+                </h1>
+
+                <div class="row justify-content-center">
+                    <div class="col-md-8">
+                        <div class="card shadow">
+                            <div class="card-body p-4">
+                                <form action="/trajets/resultats" method="get">
+                                    <div class="row g-3">
+                                        <div class="col-md-6">
+                                            <label for="villeDepart" class="form-label">Ville de départ</label>
+                                            <select class="form-select form-select-lg" id="villeDepart" name="villeDepart">
+                                                <option value="">-- Toutes les villes --</option>
+                                                <option th:each="ville : ${villes}" 
+                                                        th:value="${ville.idVille}" 
+                                                        th:text="${ville.nom}"></option>
+                                            </select>
+                                        </div>
+                                        
+                                        <div class="col-md-6">
+                                            <label for="villeArrivee" class="form-label">Ville d'arrivée</label>
+                                            <select class="form-select form-select-lg" id="villeArrivee" name="villeArrivee">
+                                                <option value="">-- Toutes les villes --</option>
+                                                <option th:each="ville : ${villes}" 
+                                                        th:value="${ville.idVille}" 
+                                                        th:text="${ville.nom}"></option>
+                                            </select>
+                                        </div>
+                                    </div>
+
+                                    <div class="d-grid gap-2 mt-4">
+                                        <button type="submit" class="btn btn-primary btn-lg">
+                                            <i class="bi bi-search"></i> Rechercher
+                                        </button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </th:block>
+</body>
+</html>

@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{backoffice/layout :: layout (~{::title}, ~{::content})}">
+<head>
+    <title>Association Classe-Catégorie - Administration</title>
+</head>
+<body>
+    <th:block th:fragment="content">
+        <div class="container-fluid">
+            <h1 th:text="${classeCategorie.idClasseCategorie != null} ? 'Modifier une association' : 'Ajouter une association'"></h1>
+            <form th:action="${classeCategorie.idClasseCategorie != null} ? @{/admin/classecategories/update} : @{/admin/classecategories/save}" method="post">
+                <input type="hidden" th:if="${classeCategorie.idClasseCategorie != null}" name="idClasseCategorie" th:value="${classeCategorie.idClasseCategorie}" />
+                <div class="mb-3">
+                    <label for="classe" class="form-label">Classe</label>
+                    <select class="form-control" id="classe" name="idClasse" required>
+                        <option th:each="classe : ${classes}"
+                            th:value="${classe.idClasse}"
+                            th:text="${classe.libelle}"
+                            th:selected="${classeCategorie.classe != null} ? (classeCategorie.classe.idClasse == classe.idClasse) : false">
+                        </option>
+                    </select>
+                </div>
+                <div class="mb-3">
+                    <label for="categorie" class="form-label">Catégorie</label>
+                    <select class="form-control" id="categorie" name="idCategorie" required>
+                        <option th:each="categorie : ${categories}"
+                            th:value="${categorie.idCategorie}"
+                            th:text="${categorie.libelle}"
+                            th:selected="${classeCategorie.categorie != null} ? (classeCategorie.categorie.idCategorie == categorie.idCategorie) : false">
+                        </option>
+                    </select>
+                </div>
+                <button type="submit" class="btn btn-success">Enregistrer</button>
+                <a th:href="@{'/admin/classecategories'}" class="btn btn-secondary">Annuler</a>
+            </form>
+        </div>
+    </th:block>
+</body>
+</html>

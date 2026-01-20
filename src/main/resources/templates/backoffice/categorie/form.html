@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{backoffice/layout :: layout (~{::title}, ~{::content})}">
+<head>
+    <title>Catégorie - Administration</title>
+</head>
+<body>
+    <th:block th:fragment="content">
+        <div class="container-fluid">
+                <h1 th:text="${categorie.idCategorie != null} ? 'Modifier une catégorie' : 'Ajouter une catégorie'"></h1>
+                <form th:action="@{/admin/categories}" method="post">
+                    <input type="hidden" th:if="${categorie.idCategorie != null}" name="idCategorie" th:value="${categorie.idCategorie}" />
+                    <div class="mb-3">
+                        <label for="libelle" class="form-label">Libellé</label>
+                        <input type="text" class="form-control" id="libelle" name="libelle" th:value="${categorie.libelle}" required />
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Couleur</label>
+                        <div class="d-flex align-items-center gap-2">
+                            <input type="color" id="couleurPicker" class="form-control form-control-color" style="width:56px;height:38px;padding:0;" value="" />
+                            <input type="text" id="couleur" name="couleur" class="form-control" th:value="${categorie.couleur}" placeholder="#f472b6 or linear-gradient(...)" />
+                        </div>
+                        <div class="form-text">Choisir une couleur hex pour une couleur simple, ou entrer un gradient CSS pour un rendu avancé.</div>
+                    </div>
+                    <button type="submit" class="btn btn-success">Enregistrer</button>
+                    <a th:href="@{/admin/categories}" class="btn btn-secondary">Annuler</a>
+                    <script>
+                        (function(){
+                            const picker = document.getElementById('couleurPicker');
+                            const input = document.getElementById('couleur');
+                            // initialize picker from value if it's a hex color
+                            try {
+                                const v = input.value || '';
+                                if (/^#([0-9a-fA-F]{3}|[0-9a-fA-F]{6})$/.test(v.trim())) {
+                                    picker.value = v.trim();
+                                }
+                            } catch(e){}
+                            picker.addEventListener('input', function(){ input.value = picker.value; });
+                            // if user edits text and it's a valid hex, update picker
+                            input.addEventListener('change', function(){
+                                const v = input.value || '';
+                                if (/^#([0-9a-fA-F]{3}|[0-9a-fA-F]{6})$/.test(v.trim())) {
+                                    picker.value = v.trim();
+                                }
+                            });
+                        })();
+                    </script>
+            </form>
+        </div>
+    </th:block>
+</body>
+</html>

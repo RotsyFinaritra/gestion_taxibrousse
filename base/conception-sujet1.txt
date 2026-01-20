@@ -1,0 +1,98 @@
+CREATE TABLE ville(
+   id_ville INTEGER,
+   nom VARCHAR(50) ,
+   PRIMARY KEY(id_ville)
+);
+
+CREATE TABLE user_admin(
+   id_user INTEGER,
+   username VARCHAR(50) ,
+   password VARCHAR(50) ,
+   PRIMARY KEY(id_user)
+);
+
+CREATE TABLE heure_depart(
+   id_heure_depart INTEGER,
+   heure TIME,
+   PRIMARY KEY(id_heure_depart)
+);
+
+CREATE TABLE vehicule(
+   id_vehicule INTEGER,
+   modele VARCHAR(50) ,
+   marque VARCHAR(50) ,
+   immatriculation VARCHAR(50) ,
+   capacite INTEGER,
+   PRIMARY KEY(id_vehicule)
+);
+
+CREATE TABLE client(
+   id_client INTEGER,
+   username VARCHAR(50) ,
+   password VARCHAR(50) ,
+   PRIMARY KEY(id_client)
+);
+
+CREATE TABLE gare_routiere(
+   id_gare_routiere INTEGER,
+   nom VARCHAR(50) ,
+   id_ville INTEGER NOT NULL,
+   PRIMARY KEY(id_gare_routiere),
+   FOREIGN KEY(id_ville) REFERENCES ville(id_ville)
+);
+
+CREATE TABLE trajet(
+   id_trajet INTEGER,
+   prix NUMERIC(15,2)  ,
+   distance NUMERIC(15,2)  ,
+   id_gare_routiere_depart INTEGER NOT NULL,
+   id_gare_routiere_arrivee INTEGER NOT NULL,
+   PRIMARY KEY(id_trajet),
+   FOREIGN KEY(id_gare_routiere_depart) REFERENCES gare_routiere(id_gare_routiere),
+   FOREIGN KEY(id_gare_routiere_arrivee) REFERENCES gare_routiere(id_gare_routiere)
+);
+
+CREATE TABLE voyage(
+   id_voyage INTEGER,
+   date_depart DATE,
+   prix NUMERIC(15,2)  ,
+   id_heure_depart INTEGER NOT NULL,
+   id_trajet INTEGER NOT NULL,
+   PRIMARY KEY(id_voyage),
+   FOREIGN KEY(id_heure_depart) REFERENCES heure_depart(id_heure_depart),
+   FOREIGN KEY(id_trajet) REFERENCES trajet(id_trajet)
+);
+
+CREATE TABLE voyage_vehicule(
+   id_voyage_vehicule INTEGER,
+   prix NUMERIC(15,2)  ,
+   id_voyage INTEGER NOT NULL,
+   id_vehicule INTEGER NOT NULL,
+   PRIMARY KEY(id_voyage_vehicule),
+   FOREIGN KEY(id_voyage) REFERENCES voyage(id_voyage),
+   FOREIGN KEY(id_vehicule) REFERENCES vehicule(id_vehicule)
+);
+
+CREATE TABLE reservation(
+   id_reservation INTEGER,
+   nom VARCHAR(50) ,
+   contact VARCHAR(50) ,
+   nombre_place INTEGER,
+   date_ TIMESTAMP,
+   etat INTEGER,
+   id_client INTEGER,
+   id_voyage_vehicule INTEGER NOT NULL,
+   PRIMARY KEY(id_reservation),
+   FOREIGN KEY(id_client) REFERENCES client(id_client),
+   FOREIGN KEY(id_voyage_vehicule) REFERENCES voyage_vehicule(id_voyage_vehicule)
+);
+
+CREATE TABLE reservation_details(
+   id_reservation_details INTEGER,
+   num_place INTEGER,
+   montant NUMERIC(15,2)  ,
+   id_reservation INTEGER NOT NULL,
+   etat INTEGER,
+   PRIMARY KEY(id_reservation_details),
+   FOREIGN KEY(id_reservation) REFERENCES reservation(id_reservation)
+);

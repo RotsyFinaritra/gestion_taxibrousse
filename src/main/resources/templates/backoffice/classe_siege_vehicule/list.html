@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" th:replace="~{backoffice/layout :: layout (~{::title}, ~{::content})}">
+<head>
+    <title>Mapping sièges → classes</title>
+</head>
+<body>
+    <th:block th:fragment="content">
+        <div class="container-fluid">
+            <h1>Mapping sièges → classes</h1>
+            <div class="mb-3">
+                <a th:href="@{/admin/classe-siege-vehicule/new}" class="btn btn-primary">Nouveau mapping</a>
+            </div>
+            <table class="table table-striped">
+                <thead>
+                    <tr><th>Véhicule</th><th>Classe</th><th>Place</th><th>Actions</th></tr>
+                </thead>
+                <tbody>
+                    <tr th:each="e : ${entries}">
+                        <td th:text="${e.vehicule != null ? e.vehicule.immatriculation : '-'}"></td>
+                        <td th:text="${e.classe != null ? e.classe.libelle : '-'}"></td>
+                        <td th:text="${e.numPlace}"></td>
+                        <td>
+                            <a th:href="@{'/admin/classe-siege-vehicule/' + ${e.idClasseSiegeVehicule} + '/delete'}" class="btn btn-sm btn-danger">Supprimer</a>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </th:block>
+</body>
+</html>

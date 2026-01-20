@@ -1,0 +1,34 @@
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title th:text="${classe.idClasse != null} ? 'Modifier une classe' : 'Ajouter une classe'">Classe</title>
+</head>
+<body>
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{backoffice/layout :: layout (~{::title}, ~{::content})}">
+<head>
+    <title>Classe - Administration</title>
+</head>
+<body>
+    <th:block th:fragment="content">
+        <div class="container-fluid">
+            <h1 th:text="${classe.idClasse != null} ? 'Modifier une classe' : 'Ajouter une classe'"></h1>
+            <form th:action="@{${classe.idClasse != null} ? '/admin/classes/update' : '/admin/classes/save'}" method="post">
+                <input type="hidden" th:if="${classe.idClasse != null}" name="idClasse" th:value="${classe.idClasse}" />
+                <div class="mb-3">
+                    <label for="libelle" class="form-label">Libellé</label>
+                    <input type="text" class="form-control" id="libelle" name="libelle" th:value="${classe.libelle}" required />
+                </div>
+                <div class="mb-3">
+                    <label for="couleur" class="form-label">Couleur (hex)</label>
+                    <input type="color" class="form-control form-control-color" id="couleur" name="couleur" th:value="${classe.couleur}" />
+                </div>
+                <button type="submit" class="btn btn-success">Enregistrer</button>
+                <a th:href="@{'/admin/classes'}" class="btn btn-secondary">Annuler</a>
+            </form>
+        </div>
+    </th:block>
+</body>
+</html>
+</body>
+</html>

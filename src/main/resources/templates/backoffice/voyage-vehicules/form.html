@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{backoffice/layout :: layout (~{::title}, ~{::content})}">
+<head>
+    <title th:text="${voyageVehicule.idVoyageVehicule != null ? 'Modifier Voyage-Véhicule' : 'Nouveau Voyage-Véhicule'}">Formulaire Voyage-Véhicule</title>
+</head>
+<body>
+    <th:block th:fragment="content">
+        <div class="container-fluid">
+            <h1 th:text="${voyageVehicule.idVoyageVehicule != null ? 'Modifier Voyage-Véhicule' : 'Nouveau Voyage-Véhicule'}">Formulaire</h1>
+            
+            <div class="card mt-4">
+                <div class="card-body">
+                    <form th:action="@{/admin/voyage-vehicules}" th:object="${voyageVehicule}" method="post">
+                        <input type="hidden" th:field="*{idVoyageVehicule}" />
+                        
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="voyage" class="form-label">Voyage *</label>
+                                <select class="form-select" id="voyage" th:field="*{voyage.idVoyage}" required>
+                                    <option value="">-- Sélectionner --</option>
+                                    <option th:each="voyage : ${voyages}" 
+                                            th:value="${voyage.idVoyage}">
+                                        <span th:text="${voyage.trajet?.gareRoutiereDepart?.ville?.nom + ' → ' + voyage.trajet?.gareRoutiereArrivee?.ville?.nom + ' - ' + #temporals.format(voyage.dateDepart, 'dd/MM/yyyy') + ' à ' + #temporals.format(voyage.heureDepart?.heure, 'HH:mm')}"></span>
+                                    </option>
+                                </select>
+                            </div>
+                            
+                            <div class="col-md-6 mb-3">
+                                <label for="vehicule" class="form-label">Véhicule *</label>
+                                <select class="form-select" id="vehicule" th:field="*{vehicule.idVehicule}" required>
+                                    <option value="">-- Sélectionner --</option>
+                                    <option th:each="vehicule : ${vehicules}" 
+                                            th:value="${vehicule.idVehicule}" 
+                                            th:text="${vehicule.marque + ' ' + vehicule.modele + ' - ' + vehicule.immatriculation + ' (' + vehicule.capacite + ' places)'}"></option>
+                                </select>
+                            </div>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="prix" class="form-label">Prix (Ar) *</label>
+                            <input type="number" step="0.01" class="form-control" id="prix" th:field="*{prix}" required />
+                        </div>
+                        
+                        <div class="d-flex gap-2">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="bi bi-save"></i> Enregistrer
+                            </button>
+                            <a th:href="@{/admin/voyage-vehicules}" class="btn btn-secondary">
+                                <i class="bi bi-x-circle"></i> Annuler
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </th:block>
+</body>
+</html>

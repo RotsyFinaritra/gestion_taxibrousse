@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" th:replace="~{backoffice/layout :: layout (~{::title}, ~{::content})}">
+<head>
+    <title th:text="${gare.idGareRoutiere != null ? 'Modifier la Gare' : 'Nouvelle Gare'} + ' - Admin'"></title>
+</head>
+<body>
+    <th:block th:fragment="content">
+        <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+            <h1 class="h2" th:text="${gare.idGareRoutiere != null ? 'Modifier la Gare' : 'Nouvelle Gare'}"></h1>
+        </div>
+
+        <div class="row">
+            <div class="col-md-6">
+                <form th:action="@{/admin/gares}" th:object="${gare}" method="post">
+                    <input type="hidden" th:field="*{idGareRoutiere}">
+                    
+                    <div class="mb-3">
+                        <label for="nom" class="form-label">Nom de la gare *</label>
+                        <input type="text" class="form-control" id="nom" th:field="*{nom}" required>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="ville" class="form-label">Ville *</label>
+                        <select class="form-select" id="ville" th:field="*{ville.idVille}" required>
+                            <option value="">-- Sélectionner une ville --</option>
+                            <option th:each="ville : ${villes}" 
+                                    th:value="${ville.idVille}" 
+                                    th:text="${ville.nom}"></option>
+                        </select>
+                    </div>
+
+                    <div class="d-flex gap-2">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="bi bi-save"></i> Enregistrer
+                        </button>
+                        <a href="/admin/gares" class="btn btn-secondary">
+                            <i class="bi bi-x-circle"></i> Annuler
+                        </a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </th:block>
+</body>
+</html>

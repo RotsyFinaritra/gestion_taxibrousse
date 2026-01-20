@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{backoffice/layout :: layout (~{::title}, ~{::content})}">
+<head>
+    <title>Heures de Départ - Administration</title>
+</head>
+<body>
+    <th:block th:fragment="content">
+        <div class="container-fluid">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h1>Gestion des Heures de Départ</h1>
+                <a th:href="@{/admin/heures/new}" class="btn btn-primary">
+                    <i class="bi bi-plus-circle"></i> Nouvelle Heure
+                </a>
+            </div>
+            
+            <div th:if="${success}" class="alert alert-success alert-dismissible fade show" role="alert">
+                <span th:text="${success}"></span>
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+            
+            <div th:if="${error}" class="alert alert-danger alert-dismissible fade show" role="alert">
+                <span th:text="${error}"></span>
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+            
+            <div class="card">
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Heure</th>
+                                    <th class="text-end">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr th:each="heure : ${heures}">
+                                    <td th:text="${heure.idHeureDepart}"></td>
+                                    <td th:text="${#temporals.format(heure.heure, 'HH:mm')}"></td>
+                                    <td class="text-end">
+                                        <a th:href="@{/admin/heures/{id}/edit(id=${heure.idHeureDepart})}" 
+                                           class="btn btn-sm btn-outline-primary">
+                                            <i class="bi bi-pencil"></i> Modifier
+                                        </a>
+                                        <a th:href="@{/admin/heures/{id}/delete(id=${heure.idHeureDepart})}" 
+                                           class="btn btn-sm btn-outline-danger"
+                                           onclick="return confirm('Êtes-vous sûr de vouloir supprimer cette heure de départ ?')">
+                                            <i class="bi bi-trash"></i> Supprimer
+                                        </a>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </th:block>
+</body>
+</html>

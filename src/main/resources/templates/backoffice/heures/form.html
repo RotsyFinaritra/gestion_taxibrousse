@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{backoffice/layout :: layout (~{::title}, ~{::content})}">
+<head>
+    <title th:text="${heureDepart.idHeureDepart != null ? 'Modifier Heure' : 'Nouvelle Heure'}">Formulaire Heure</title>
+</head>
+<body>
+    <th:block th:fragment="content">
+        <div class="container-fluid">
+            <h1 th:text="${heureDepart.idHeureDepart != null ? 'Modifier Heure de Départ' : 'Nouvelle Heure de Départ'}">Formulaire Heure</h1>
+            
+            <div class="card mt-4">
+                <div class="card-body">
+                    <form th:action="@{/admin/heures}" th:object="${heureDepart}" method="post">
+                        <input type="hidden" th:field="*{idHeureDepart}" />
+                        
+                        <div class="mb-3">
+                            <label for="heure" class="form-label">Heure (HH:mm) *</label>
+                            <input type="time" class="form-control" id="heure" th:field="*{heure}" required />
+                        </div>
+                        
+                        <div class="d-flex gap-2">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="bi bi-save"></i> Enregistrer
+                            </button>
+                            <a th:href="@{/admin/heures}" class="btn btn-secondary">
+                                <i class="bi bi-x-circle"></i> Annuler
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </th:block>
+</body>
+</html>

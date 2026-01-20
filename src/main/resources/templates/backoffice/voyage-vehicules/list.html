@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{backoffice/layout :: layout (~{::title}, ~{::content})}">
+<head>
+    <title>Voyage-Véhicules - Administration</title>
+</head>
+<body>
+    <th:block th:fragment="content">
+        <div class="container-fluid">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h1>Gestion des Voyage-Véhicules</h1>
+                <a th:href="@{/admin/voyage-vehicules/new}" class="btn btn-primary">
+                    <i class="bi bi-plus-circle"></i> Nouveau Voyage-Véhicule
+                </a>
+            </div>
+            
+            <div th:if="${success}" class="alert alert-success alert-dismissible fade show" role="alert">
+                <span th:text="${success}"></span>
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+            
+            <div th:if="${error}" class="alert alert-danger alert-dismissible fade show" role="alert">
+                <span th:text="${error}"></span>
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+            
+            <div class="card">
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Voyage</th>
+                                    <th>Date Départ</th>
+                                    <th>Véhicule</th>
+                                    <th>Immatriculation</th>
+                                    <th>Prix (Ar)</th>
+                                    <th class="text-end">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr th:each="vv : ${voyageVehicules}">
+                                    <td th:text="${vv.idVoyageVehicule}"></td>
+                                    <td>
+                                        <span th:if="${vv.voyage != null && vv.voyage.trajet != null}">
+                                            <span th:text="${vv.voyage.trajet.gareRoutiereDepart?.ville?.nom}"></span>
+                                            →
+                                            <span th:text="${vv.voyage.trajet.gareRoutiereArrivee?.ville?.nom}"></span>
+                                        </span>
+                                    </td>
+                                    <td th:text="${vv.voyage != null ? #temporals.format(vv.voyage.dateDepart, 'dd/MM/yyyy') : 'N/A'}"></td>
+                                    <td th:text="${vv.vehicule?.marque + ' ' + vv.vehicule?.modele}"></td>
+                                    <td th:text="${vv.vehicule?.immatriculation}"></td>
+                                    <td th:text="${vv.prix}"></td>
+                                    <td class="text-end">
+                                        <a th:href="@{/admin/voyage-vehicules/{id}/edit(id=${vv.idVoyageVehicule})}" 
+                                           class="btn btn-sm btn-outline-primary">
+                                            <i class="bi bi-pencil"></i> Modifier
+                                        </a>
+                                        <a th:href="@{/admin/voyage-vehicules/{id}/delete(id=${vv.idVoyageVehicule})}" 
+                                           class="btn btn-sm btn-outline-danger"
+                                           onclick="return confirm('Êtes-vous sûr de vouloir supprimer ce voyage-véhicule ?')">
+                                            <i class="bi bi-trash"></i> Supprimer
+                                        </a>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </th:block>
+</body>
+</html>

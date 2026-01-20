@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{backoffice/layout :: layout (~{::title}, ~{::content})}">
+<head>
+    <title>Tarif Classe-Catégorie-Trajet - Administration</title>
+</head>
+<body>
+    <th:block th:fragment="content">
+        <div class="container-fluid">
+            <h1 th:text="${tarif.idTarifClasseCategorieTrajet != null} ? 'Modifier un tarif' : 'Ajouter un tarif'"></h1>
+            <form th:action="${tarif.idTarifClasseCategorieTrajet != null} ? @{/admin/tarif-classe-categorie-trajet/update} : @{/admin/tarif-classe-categorie-trajet/save}" method="post">
+                <input type="hidden" th:if="${tarif.idTarifClasseCategorieTrajet != null}" name="idTarifClasseCategorieTrajet" th:value="${tarif.idTarifClasseCategorieTrajet}" />
+                <div class="mb-3">
+                    <label for="classeCategorie" class="form-label">Classe-Catégorie</label>
+                    <select id="classeCategorie" name="classeCategorie.idClasseCategorie" class="form-control" required>
+                        <option th:each="cc : ${classeCategories}" th:value="${cc.idClasseCategorie}" th:text="${cc.classe.libelle + ' / ' + cc.categorie.libelle}"></option>
+                    </select>
+                </div>
+                <div class="mb-3">
+                    <label for="trajet" class="form-label">Trajet</label>
+                    <select id="trajet" name="trajet.idTrajet" class="form-control" required>
+                        <option th:each="tr : ${trajets}"
+                                th:value="${tr.idTrajet}"
+                                th:text="${tr.gareRoutiereDepart.nom + ' (' + tr.gareRoutiereDepart.ville.nom + ')' + ' -> ' + tr.gareRoutiereArrivee.nom + ' (' + tr.gareRoutiereArrivee.ville.nom + ')'}"
+                                th:selected="${tarif.trajet != null} ? (tarif.trajet.idTrajet == tr.idTrajet) : false">
+                        </option>
+                    </select>
+                </div>
+                <div class="mb-3">
+                    <label for="montant" class="form-label">Montant</label>
+                    <input type="number" step="0.01" class="form-control" id="montant" name="montant" th:value="${tarif.montant}" required />
+                </div>
+                <div class="mb-3">
+                    <label for="date" class="form-label">Date</label>
+                    <input type="date" class="form-control" id="date" name="date" th:value="${tarif.date}" />
+                </div>
+                <button type="submit" class="btn btn-success">Enregistrer</button>
+                <a th:href="@{/admin/tarif-classe-categorie-trajet}" class="btn btn-secondary">Annuler</a>
+            </form>
+        </div>
+    </th:block>
+</body>
+</html>

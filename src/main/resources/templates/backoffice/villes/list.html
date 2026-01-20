@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" th:replace="~{backoffice/layout :: layout (~{::title}, ~{::content})}">
+<head>
+    <title>Gestion des Villes - Admin</title>
+</head>
+<body>
+    <th:block th:fragment="content">
+        <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+            <h1 class="h2"><i class="bi bi-geo-alt"></i> Gestion des Villes</h1>
+            <div class="btn-toolbar mb-2 mb-md-0">
+                <a href="/admin/villes/new" class="btn btn-primary">
+                    <i class="bi bi-plus-circle"></i> Nouvelle Ville
+                </a>
+            </div>
+        </div>
+
+        <div class="table-responsive">
+            <table class="table table-striped table-hover">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Nom</th>
+                        <th class="text-end">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:each="ville : ${villes}">
+                        <td th:text="${ville.idVille}"></td>
+                        <td th:text="${ville.nom}"></td>
+                        <td class="text-end">
+                            <a th:href="@{/admin/villes/{id}/edit(id=${ville.idVille})}" 
+                               class="btn btn-sm btn-warning">
+                                <i class="bi bi-pencil"></i> Modifier
+                            </a>
+                            <a th:href="@{/admin/villes/{id}/delete(id=${ville.idVille})}" 
+                               class="btn btn-sm btn-danger"
+                               onclick="return confirm('Êtes-vous sûr de vouloir supprimer cette ville ?')">
+                                <i class="bi bi-trash"></i> Supprimer
+                            </a>
+                        </td>
+                    </tr>
+                    <tr th:if="${#lists.isEmpty(villes)}">
+                        <td colspan="3" class="text-center text-muted">Aucune ville enregistrée</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </th:block>
+</body>
+</html>

@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" th:replace="~{backoffice/layout :: layout (~{::title}, ~{::content})}">
+<head>
+    <title>Associer sièges à une classe</title>
+</head>
+<body>
+    <th:block th:fragment="content">
+        <div class="container-fluid">
+            <h1>Associer sièges à une classe</h1>
+            <div class="card">
+                <div class="card-body">
+                    <form th:action="@{/admin/classe-siege-vehicule}" method="post">
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label class="form-label">Véhicule</label>
+                                <script>
+                                    // Inline fetch function defined before the select so onchange always works
+                                    window._fetchSeatLayoutInline = function(sel) {
+                                        var id = sel.value;
+                                        var seatLayoutContainer = document.getElementById('seat-layout');
+                                        if (!id) {
+                                            if (seatLayoutContainer) seatLayoutContainer.innerHTML = '';
+                                            return;
+                                        }
+                                        var statusEl = document.getElementById('seat-status');
+                                        if (statusEl) statusEl.textContent = 'Chargement du plan de sièges...';
+                                        fetch('/admin/classe-siege-vehicule/seat-layout?vehiculeId=' + encodeURIComponent(id))
+                                            .then(function(resp){ if (!resp.ok) throw new Error('HTTP ' + resp.status); return resp.text(); })
+                                            .then(function(html){ if (seatLayoutContainer) seatLayoutContainer.innerHTML = html || ''; if (statusEl) { if (!html || !html.trim()) statusEl.textContent = 'Aucun plan disponible pour ce véhicule.'; else statusEl.textContent = ''; } })
+                                            .catch(function(err){ if (statusEl) statusEl.textContent = 'Erreur lors du chargement du plan de sièges: ' + err.message; });
+                                    };
+                                </script>
+                                <select name="vehiculeId" id="vehicule" class="form-select" required onchange="window._fetchSeatLayoutInline(this)">
+                                    <option value="">-- Choisir --</option>
+                                        <option th:each="v : ${vehicules}" th:value="${v.idVehicule}"
+                                            th:text="${v.immatriculation + ' - ' + (v.marque != null ? v.marque : '') + ' ' + (v.modele != null ? v.modele : '')}"
+                                            th:selected="${v.idVehicule == selectedVehiculeId}"></option>
+                                </select>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Classe à appliquer</label>
+                                <div style="display:flex;gap:8px;align-items:center">
+                                    <select id="assignClassSelect" class="form-select" style="width:auto;display:inline-block">
+                                        <option value="">-- Choisir classe --</option>
+                                        <option th:each="c : ${classes}" th:value="${c.idClasse}" th:text="${c.libelle}" th:attr="data-color=${c.couleur}"></option>
+                                    </select>
+                                    <button type="button" id="applyClassBtn" class="btn btn-sm btn-outline-primary">Appliquer</button>
+                                </div>
+                                
+                            </div>
+                        </div>
+
+                        <div id="seat-layout" th:utext="${seatLayoutHtml}"></div>
+                        <div id="seat-status" class="text-muted small mt-1"></div>
+                        <input type="hidden" name="selectedSeatsByClass" id="selectedSeatsByClass" />
+                        <div class="mt-3">
+                            <button type="submit" class="btn btn-primary">Enregistrer</button>
+                            <a th:href="@{/admin/classe-siege-vehicule}" class="btn btn-secondary">Annuler</a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    <script>
+        // Initialize seat interactions for the current seat layout.
+        function initSeatInteractions() {
+            const seatLayout = document.getElementById('seat-layout');
+            const selectedSeatsByClassInput = document.getElementById('selectedSeatsByClass');
+            const assignClassSelect = document.getElementById('assignClassSelect');
+            const applyClassBtn = document.getElementById('applyClassBtn');
+            if (!seatLayout) return;
+
+            // map seat -> classId
+            let seatToClass = {};
+            // set of currently selected seat numbers
+            let selected = new Set();
+
+            function updateHidden() {
+                const map = {};
+                Object.keys(seatToClass).forEach(function(seat){
+                    const cls = seatToClass[seat];
+                    if (!cls) return;
+                    if (!map[cls]) map[cls] = [];
+                    map[cls].push(Number(seat));
+                });
+                selectedSeatsByClassInput.value = JSON.stringify(map);
+            }
+
+            seatLayout.addEventListener('click', function(e){
+                if (e.target.classList.contains('seat') && e.target.classList.contains('available')) {
+                    const seatNum = e.target.getAttribute('data-seat');
+                    if (selected.has(seatNum)) {
+                        selected.delete(seatNum);
+                        e.target.classList.remove('selected');
+                    } else {
+                        selected.add(seatNum);
+                        e.target.classList.add('selected');
+                    }
+                }
+            });
+
+            applyClassBtn.addEventListener('click', function(){
+                const classId = assignClassSelect.value;
+                if (!classId) return;
+                Array.from(selected).forEach(function(seatNum){
+                    seatToClass[seatNum] = parseInt(classId);
+                    const seatElem = seatLayout.querySelector('.seat[data-seat="' + seatNum + '"]');
+                    if (seatElem) {
+                        // remove any previous class-<id> markers
+                        Array.from(seatElem.classList).forEach(function(cl){ if (cl.startsWith('class-')) seatElem.classList.remove(cl); });
+                        seatElem.classList.remove('selected');
+                        seatElem.classList.add('assigned');
+                        seatElem.classList.add('class-' + classId);
+                    }
+                    selected.delete(seatNum);
+                });
+                updateHidden();
+            });
+
+            
+        }
+
+        // fetch seat layout for a vehicle and update DOM without reloading the page
+        window.onVehiculeChange = function(sel){
+            var id = sel.value;
+            var seatLayoutContainer = document.getElementById('seat-layout');
+            if (!id) {
+                if (seatLayoutContainer) seatLayoutContainer.innerHTML = '';
+                return;
+            }
+            console.log('Fetching seat layout for vehicle', id);
+            var statusEl = document.getElementById('seat-status');
+            if (statusEl) statusEl.textContent = 'Chargement du plan de sièges...';
+            fetch('/admin/classe-siege-vehicule/seat-layout?vehiculeId=' + encodeURIComponent(id))
+                .then(function(resp){
+                    if (!resp.ok) throw new Error('HTTP ' + resp.status);
+                    return resp.text();
+                })
+                .then(function(html){
+                    console.log('Seat layout response length:', html ? html.length : 0);
+                    if (seatLayoutContainer) seatLayoutContainer.innerHTML = html || '';
+                    // reinitialize interactions for the new layout
+                    initSeatInteractions();
+                    if (statusEl) {
+                        if (!html || !html.trim()) statusEl.textContent = 'Aucun plan disponible pour ce véhicule.';
+                        else statusEl.textContent = '';
+                    }
+                })
+                .catch(function(err){
+                    console.error('Failed to load seat layout', err);
+                    if (statusEl) statusEl.textContent = 'Erreur lors du chargement du plan de sièges: ' + err.message;
+                });
+        }
+
+        document.addEventListener('DOMContentLoaded', function(){
+            console.log('ClasseSiegeVehicule form: DOMContentLoaded');
+            // generate dynamic styles for each classe option so assigned seats get distinct colors
+            const assignClassSelectEl = document.getElementById('assignClassSelect');
+            function buildClassStyles() {
+                if (!assignClassSelectEl) return;
+                function hexToRgb(hex) {
+                    if (!hex) return null;
+                    const h = hex.replace('#','');
+                    if (h.length === 3) {
+                        return [parseInt(h[0]+h[0],16), parseInt(h[1]+h[1],16), parseInt(h[2]+h[2],16)];
+                    }
+                    if (h.length === 6) {
+                        return [parseInt(h.substring(0,2),16), parseInt(h.substring(2,4),16), parseInt(h.substring(4,6),16)];
+                    }
+                    return null;
+                }
+                let css = '';
+                Array.from(assignClassSelectEl.options).forEach(function(opt){
+                    const val = opt.value;
+                    if (!val) return;
+                    const color = opt.getAttribute('data-color');
+                    if (color) {
+                        const rgb = hexToRgb(color);
+                        if (rgb) {
+                            const bg1 = 'rgba(' + rgb.join(',') + ',0.18)';
+                            const bg2 = 'rgba(' + rgb.join(',') + ',0.32)';
+                            const border = color;
+                            css += '.class-' + val + ' { background: linear-gradient(135deg, ' + bg1 + ' 0%, ' + bg2 + ' 100%); border: 2px solid ' + border + '; color: #000; }\n';
+                            return;
+                        }
+                    }
+                    // fallback to generated hue
+                    const idx = Array.prototype.indexOf.call(assignClassSelectEl.options, opt) || 0;
+                    const hue = (idx * 73) % 360;
+                    const light1 = 'hsl(' + hue + ',73%,88%)';
+                    const light2 = 'hsl(' + hue + ',73%,70%)';
+                    const border = 'hsl(' + hue + ',73%,55%)';
+                    css += '.class-' + val + ' { background: linear-gradient(135deg, ' + light1 + ' 0%, ' + light2 + ' 100%); border: 2px solid ' + border + '; color: #000; }\n';
+                });
+                let styleEl = document.getElementById('dynamic-class-styles');
+                if (!styleEl) {
+                    styleEl = document.createElement('style');
+                    styleEl.id = 'dynamic-class-styles';
+                    document.head.appendChild(styleEl);
+                }
+                styleEl.textContent = css;
+            }
+            buildClassStyles();
+            // initialize interactions for server-rendered layout
+            initSeatInteractions();
+            // attach change handler to vehicule select to fetch layout dynamically
+            const vehSelect = document.getElementById('vehicule');
+            if (vehSelect) {
+                console.log('Attaching change handler to #vehicule');
+                vehSelect.addEventListener('change', function() { console.log('vehicule change event fired, value=', this.value); window.onVehiculeChange(this); });
+                // also log input events as fallback
+                vehSelect.addEventListener('input', function() { console.log('vehicule input event, value=', this.value); });
+            } else {
+                console.log('No #vehicule element found');
+            }
+        });
+    </script>
+    </th:block>
+</body>
+</html>

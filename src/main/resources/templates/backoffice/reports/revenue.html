@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{backoffice/layout :: layout (~{::title}, ~{::content})}">
+<head>
+    <title>Chiffre d'affaires - Administration</title>
+</head>
+<body>
+    <th:block th:fragment="content">
+        <div class="container-fluid">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h1>Chiffre d'affaires</h1>
+            </div>
+
+            <div>
+                <label for="voyageSelect">Voyage</label>
+                <select id="voyageSelect" class="form-select">
+                    <option value="">-- Choisir un voyage --</option>
+                    <th:block th:each="v : ${voyages}">
+                        <option th:value="${v.idVoyage}"
+                                th:text="${ v.trajet != null ?
+                                    ( (v.trajet.gareRoutiereDepart != null and v.trajet.gareRoutiereDepart.ville != null ? v.trajet.gareRoutiereDepart.ville.nom : '')
+                                      + ' → '
+                                      + (v.trajet.gareRoutiereArrivee != null and v.trajet.gareRoutiereArrivee.ville != null ? v.trajet.gareRoutiereArrivee.ville.nom : '')
+                                      + ' - '
+                                      + #temporals.format(v.dateDepart, 'dd/MM/yyyy') )
+                                    : ('Voyage ' + v.idVoyage) }">
+                        </option>
+                    </th:block>
+                </select>
+
+                <label for="vvSelect" class="mt-2">Véhicule (voyage-vehicule)</label>
+                <select id="vvSelect" class="form-select">
+                    <option value="">-- Choisir un véhicule --</option>
+                </select>
+
+                <button id="computeBtn" class="btn btn-primary mt-3">Calculer</button>
+            </div>
+
+            <div id="result" style="margin-top:1rem">
+                <strong>Total:</strong> <span id="total">-</span>
+                <br/>
+                <strong>Réservations comptées:</strong> <span id="count">-</span>
+            </div>
+        </div>
+
+        <script th:inline="javascript">
+        /*<![CDATA[*/
+        const voyageSelect = document.getElementById('voyageSelect');
+        const vvSelect = document.getElementById('vvSelect');
+        const computeBtn = document.getElementById('computeBtn');
+        const totalEl = document.getElementById('total');
+        const countEl = document.getElementById('count');
+
+        voyageSelect.addEventListener('change', function() {
+            const vid = this.value;
+            vvSelect.innerHTML = '<option value="">-- Choisir un véhicule --</option>';
+            if (!vid) return;
+            fetch('/admin/reports/voyageVehicules?voyageId=' + encodeURIComponent(vid))
+                .then(r => r.json())
+                .then(list => {
+                    list.forEach(function(vv) {
+                        const label = (vv.vehicule && vv.vehicule.immatriculation) ? (vv.vehicule.immatriculation + ' - ' + (vv.idVoyageVehicule || '')) : (vv.idVoyageVehicule || '');
+                        const opt = document.createElement('option');
+                        opt.value = vv.idVoyageVehicule;
+                        opt.text = label;
+                        vvSelect.appendChild(opt);
+                    });
+                }).catch(err => console.error(err));
+        });
+
+        computeBtn.addEventListener('click', function() {
+            const vvId = vvSelect.value;
+            if (!vvId) {
+                alert('Veuillez choisir un véhicule de voyage');
+                return;
+            }
+            totalEl.textContent = '...';
+            countEl.textContent = '...';
+            fetch('/admin/reports/revenue/compute?voyageVehiculeId=' + encodeURIComponent(vvId))
+                .then(r => r.json())
+                .then(j => {
+                    if (j.success) {
+                        totalEl.textContent = j.total + ' MGA';
+                        countEl.textContent = j.count;
+                    } else {
+                        totalEl.textContent = 'Erreur';
+                        countEl.textContent = 0;
+                        console.error(j.error);
+                    }
+                }).catch(err => {
+                    totalEl.textContent = 'Erreur';
+                    countEl.textContent = 0;
+                    console.error(err);
+                });
+        });
+        /*]]>*/
+        </script>
+    </th:block>
+</body>
+</html>

@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{backoffice/layout :: layout (~{::title}, ~{::content})}">
+<head>
+    <title>Détails de réservation - Administration</title>
+</head>
+<body>
+    <th:block th:fragment="content">
+        <div class="container-fluid">
+            <h1>Détails de réservation</h1>
+            <div class="card">
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Numéro de place</th>
+                                    <th>Montant</th>
+                                    <th>État</th>
+                                    <th>Réservation</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr th:each="details : ${reservationDetails}">
+                                    <td th:text="${details.idReservationDetails}"></td>
+                                    <td th:text="${details.numPlace}"></td>
+                                    <td th:text="${details.montant}"></td>
+                                    <td th:utext="${T(com.itu.taxibrousse.entity.ReservationDetails).getEtatLibelle(details.etat)}"></td>
+                                    <td th:text="${details.reservation?.nom}"></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </th:block>
+</body>
+</html>

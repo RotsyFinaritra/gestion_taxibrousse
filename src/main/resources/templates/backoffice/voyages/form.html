@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{backoffice/layout :: layout (~{::title}, ~{::content})}">
+<head>
+    <title th:text="${voyage.idVoyage != null ? 'Modifier le Voyage' : 'Nouveau Voyage'}">Formulaire Voyage</title>
+</head>
+<body>
+    <th:block th:fragment="content">
+        <div class="container-fluid">
+            <h1 th:text="${voyage.idVoyage != null ? 'Modifier le Voyage' : 'Nouveau Voyage'}">Formulaire Voyage</h1>
+            
+            <div class="card mt-4">
+                <div class="card-body">
+                    <form th:action="@{/admin/voyages}" th:object="${voyage}" method="post">
+                        <input type="hidden" th:field="*{idVoyage}" />
+                        
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="trajet" class="form-label">Trajet *</label>
+                                <select class="form-select" id="trajet" th:field="*{trajet.idTrajet}" required>
+                                    <option value="">-- Sélectionner --</option>
+                                    <option th:each="trajet : ${trajets}" 
+                                            th:value="${trajet.idTrajet}" 
+                                            th:text="${trajet.gareRoutiereDepart?.ville?.nom + ' → ' + trajet.gareRoutiereArrivee?.ville?.nom}"></option>
+                                </select>
+                            </div>
+                            
+                            <div class="col-md-6 mb-3">
+                                <label for="heureDepart" class="form-label">Heure de départ *</label>
+                                <select class="form-select" id="heureDepart" th:field="*{heureDepart.idHeureDepart}" required>
+                                    <option value="">-- Sélectionner --</option>
+                                    <option th:each="heure : ${heures}" 
+                                            th:value="${heure.idHeureDepart}" 
+                                            th:text="${#temporals.format(heure.heure, 'HH:mm')}"></option>
+                                </select>
+                            </div>
+                        </div>
+                        
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="dateDepart" class="form-label">Date de départ *</label>
+                                <input type="date" class="form-control" id="dateDepart" th:field="*{dateDepart}" required />
+                            </div>
+                            
+                            <div class="col-md-6 mb-3">
+                                <label for="prix" class="form-label">Prix (Ar) *</label>
+                                <input type="number" step="0.01" class="form-control" id="prix" th:field="*{prix}" required />
+                            </div>
+                        </div>
+                        
+                        <div class="d-flex gap-2">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="bi bi-save"></i> Enregistrer
+                            </button>
+                            <a th:href="@{/admin/voyages}" class="btn btn-secondary">
+                                <i class="bi bi-x-circle"></i> Annuler
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </th:block>
+</body>
+</html>

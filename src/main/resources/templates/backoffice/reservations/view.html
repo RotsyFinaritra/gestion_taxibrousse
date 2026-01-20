@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" th:replace="~{backoffice/layout :: layout (~{::title}, ~{::content})}">
+<head>
+    <title>Réservation - Détails</title>
+</head>
+<body>
+<th:block th:fragment="content">
+    <div class="container-fluid">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h1>Détails Réservation</h1>
+            <div>
+                <a th:href="@{/admin/reservations}" class="btn btn-secondary">Retour</a>
+                <a th:href="@{/admin/reservations/{id}/edit(id=${reservation.idReservation})}" class="btn btn-primary">Modifier</a>
+            </div>
+        </div>
+
+        <div class="card mb-3">
+            <div class="card-body">
+                <h5>Réservation #<span th:text="${reservation.idReservation}"></span></h5>
+                <p><strong>Nom:</strong> <span th:text="${reservation.nom}"></span></p>
+                <p><strong>Contact:</strong> <span th:text="${reservation.contact}"></span></p>
+                <p><strong>Date:</strong> <span th:text="${#temporals.format(reservation.date,'dd/MM/yyyy HH:mm')}"></span></p>
+                <p><strong>Voyage:</strong>
+                    <span th:if="${reservation.voyageVehicule != null and reservation.voyageVehicule.voyage != null and reservation.voyageVehicule.voyage.trajet != null}">
+                        <span th:text="${reservation.voyageVehicule.voyage.trajet.gareRoutiereDepart.ville.nom}"></span>
+                        →
+                        <span th:text="${reservation.voyageVehicule.voyage.trajet.gareRoutiereArrivee.ville.nom}"></span>
+                        (<span th:text="${#temporals.format(reservation.voyageVehicule.voyage.dateDepart,'dd/MM/yyyy')}"></span>)
+                    </span>
+                </p>
+                <p><strong>Client:</strong> <span th:text="${reservation.client != null ? reservation.client.username : 'Invité'}"></span></p>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-body">
+                <h5>Détails des places</h5>
+                <div class="table-responsive">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>Place</th>
+                                <th>Classe</th>
+                                <th>Catégorie</th>
+                                <th>Montant</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr th:each="d : ${details}">
+                                <td th:text="${d.numPlace}"></td>
+                                <td th:text="${d.classeCategorie != null && d.classeCategorie.classe != null ? d.classeCategorie.classe.libelle : '-'}"></td>
+                                <td th:text="${d.classeCategorie != null && d.classeCategorie.categorie != null ? d.classeCategorie.categorie.libelle : '-'}"></td>
+                                <td th:text="${d.montant != null ? #numbers.formatDecimal(d.montant, 2, 'COMMA', 2, 'POINT') : '-'}"></td>
+                            </tr>
+                        </tbody>
+                        <tfoot>
+                            <tr>
+                                <th colspan="3" class="text-end">Total</th>
+                                <th th:text="${total}"></th>
+                            </tr>
+                        </tfoot>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</th:block>
+</body>
+</html>

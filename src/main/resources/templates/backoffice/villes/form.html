@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" th:replace="~{backoffice/layout :: layout (~{::title}, ~{::content})}">
+<head>
+    <title th:text="${ville.idVille != null ? 'Modifier la Ville' : 'Nouvelle Ville'} + ' - Admin'"></title>
+</head>
+<body>
+    <th:block th:fragment="content">
+        <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+            <h1 class="h2" th:text="${ville.idVille != null ? 'Modifier la Ville' : 'Nouvelle Ville'}"></h1>
+        </div>
+
+        <div class="row">
+            <div class="col-md-6">
+                <form th:action="@{/admin/villes}" th:object="${ville}" method="post">
+                    <input type="hidden" th:field="*{idVille}">
+                    
+                    <div class="mb-3">
+                        <label for="nom" class="form-label">Nom de la ville *</label>
+                        <input type="text" class="form-control" id="nom" th:field="*{nom}" required>
+                    </div>
+
+                    <div class="d-flex gap-2">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="bi bi-save"></i> Enregistrer
+                        </button>
+                        <a href="/admin/villes" class="btn btn-secondary">
+                            <i class="bi bi-x-circle"></i> Annuler
+                        </a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </th:block>
+</body>
+</html>

@@ -1,0 +1,831 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" th:replace="~{backoffice/layout :: layout (~{::title}, ~{::content})}">
+
+<head>
+    <title th:text="${reservation.idReservation != null ? 'Modifier Réservation' : 'Nouvelle Réservation'}">Formulaire
+        Réservation</title>
+</head>
+
+<body>
+    <th:block th:fragment="content">
+        <div class="container-fluid">
+            <h1 th:text="${reservation.idReservation != null ? 'Modifier Réservation' : 'Nouvelle Réservation'}">
+                Formulaire</h1>
+
+            <div class="card mt-4">
+                <div class="card-body">
+                    <form th:action="@{/admin/reservations}" th:object="${reservation}" method="post">
+                        <input type="hidden" id="idReservation" th:field="*{idReservation}" />
+
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="nom" class="form-label">Nom *</label>
+                                <input type="text" class="form-control" id="nom" th:field="*{nom}" required />
+                            </div>
+
+                            <div class="col-md-6 mb-3">
+                                <label for="contact" class="form-label">Contact *</label>
+                                <input type="text" class="form-control" id="contact" th:field="*{contact}"
+                                    placeholder="Ex: 0340123456" required />
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="voyageVehicule" class="form-label">Voyage-Véhicule *</label>
+                                <select class="form-select" id="voyageVehicule"
+                                    th:field="*{voyageVehicule.idVoyageVehicule}" required
+                                    onchange="onVoyageVehiculeChange(this)">
+                                    <option value="">-- Sélectionner --</option>
+                                    <option th:each="vv : ${voyageVehicules}" th:value="${vv.idVoyageVehicule}">
+                                        <span th:text="${vv.voyage?.trajet?.gareRoutiereDepart?.ville?.nom + ' → ' + 
+                                                         vv.voyage?.trajet?.gareRoutiereArrivee?.ville?.nom + ' - ' + 
+                                                         #temporals.format(vv.voyage?.dateDepart, 'dd/MM/yyyy') + ' - ' + 
+                                                         vv.vehicule?.marque + ' ' + vv.vehicule?.modele}"></span>
+                                    </option>
+                                </select>
+                                <script>
+                                    function onVoyageVehiculeChange(select) {
+                                        var id = select.value;
+                                        // collect current form values to preserve them on reload
+                                        var nom = encodeURIComponent(document.getElementById('nom')?.value || '');
+                                        var contact = encodeURIComponent(document.getElementById('contact')?.value || '');
+                                        var clientId = encodeURIComponent(document.getElementById('client')?.value || '');
+                                        var etat = encodeURIComponent(document.getElementById('etat')?.value || '');
+                                        var date = encodeURIComponent(document.getElementById('date')?.value || '');
+                                        var selectedSeats = encodeURIComponent(document.getElementById('selectedSeats')?.value || '');
+                                        var idRes = encodeURIComponent(document.getElementById('idReservation')?.value || '');
+                                        var params = [];
+                                        params.push('voyageVehiculeId=' + encodeURIComponent(id));
+                                        if (selectedSeats) params.push('selectedSeats=' + selectedSeats);
+                                        if (nom) params.push('nom=' + nom);
+                                        if (contact) params.push('contact=' + contact);
+                                        if (clientId) params.push('clientId=' + clientId);
+                                        if (etat) params.push('etat=' + etat);
+                                        if (date) params.push('date=' + date);
+                                        if (idRes) params.push('idReservation=' + idRes);
+                                        var url = window.location.pathname + '?' + params.join('&');
+                                        window.location.href = url;
+                                    }
+                                </script>
+                            </div>
+
+                            <div class="col-md-6 mb-3">
+                                <label for="client" class="form-label">Client</label>
+                                <select class="form-select" id="client" th:field="*{client.idClient}">
+                                    <option value="">-- Invité (sans compte) --</option>
+                                    <option th:each="client : ${clients}" th:value="${client.idClient}"
+                                        th:text="${client.username}"></option>
+                                </select>
+                            </div>
+                            <!-- Top-level per-reservation category selector removed (per-seat categories now supported) -->
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-12 mb-3">
+                                <label class="form-label">Sélection des sièges *</label>
+                                <div class="seat-legend mt-3 d-flex flex-wrap gap-3" style="align-items:center;">
+                                    <div class="legend-item d-flex align-items-center gap-2">
+                                        <span class="legend-dot"
+                                            style="background: linear-gradient(135deg, #dcfce7 0%, #bbf7d0 100%); border: 2px solid #86efac;"></span>
+                                        <span>Disponible</span>
+                                    </div>
+                                    <div class="legend-item d-flex align-items-center gap-2">
+                                        <span class="legend-dot"
+                                            style="background: linear-gradient(135deg, #fee2e2 0%, #fecaca 100%); border: 2px solid #fca5a5;"></span>
+                                        <span>Réservée</span>
+                                    </div>
+                                    <div class="legend-item d-flex align-items-center gap-2">
+                                        <span class="legend-dot"
+                                            style="background: linear-gradient(135deg, #2563eb 0%, #1e40af 100%); border: 2px solid #93c5fd;"></span>
+                                        <span>Sélectionnée</span>
+                                    </div>
+                                    <div class="legend-item d-flex align-items-center gap-2">
+                                        <span class="legend-dot"
+                                            style="background: linear-gradient(135deg, #1e293b 0%, #334155 100%); border: 2px solid #475569;"></span>
+                                        <span>Chauffeur</span>
+                                    </div>
+                                </div>
+                                <div class="mt-3">
+                                    <label class="form-label">Tarif estimé</label>
+                                    <div id="price-display" class="fs-5">
+                                        <span id="computedPrice">—</span>
+                                        <small class="text-muted" id="computedPriceSource"></small>
+                                    </div>
+                                </div>
+                                <!-- Visible legend for Classe colors -->
+                                <div id="class-legend-visible" class="seat-legend mt-3 d-flex flex-wrap gap-3"
+                                    style="align-items:center;">
+                                    <div class="legend-item d-flex align-items-center gap-2">
+                                        <span>Couleurs des classes:</span>
+                                    </div>
+                                    <div class="d-flex flex-wrap gap-2 mt-1">
+                                        <span th:each="c : ${classes}"
+                                            class="legend-item d-flex align-items-center gap-2"
+                                            th:attr="data-class-id=${c.idClasse}, data-class-color=${c.couleur}">
+                                            <span class="legend-dot" style="background:#ddd;"></span>
+                                            <span th:text="${c.libelle}"></span>
+                                        </span>
+                                    </div>
+                                </div>
+                                <div id="seat-layout" th:utext="${seatLayoutHtml}"></div>
+                                <input type="hidden" name="selectedSeats" id="selectedSeats"
+                                    th:value="${selectedSeats}" />
+                                <input type="hidden" name="selectedSeatsByCategory" id="selectedSeatsByCategory" />
+                                <input type="hidden" name="selectedSeatsByClasseCategorie"
+                                    id="selectedSeatsByClasseCategorie" />
+                                <script th:inline="javascript">
+                                    /*<![CDATA[*/
+                                    window.allClasseCategories = [];
+                                    /*[# th:each="cc : ${classeCategories}" ]*/
+                                    window.allClasseCategories.push({
+                                        idClasseCategorie: /*[[${cc.idClasseCategorie}]]*/ 0,
+                                        idClasse: /*[[${cc.classe.idClasse}]]*/ 0,
+                                        idCategorie: /*[[${cc.categorie.idCategorie}]]*/ 0
+                                    });
+                                    /*[/]*/
+                                    /*]]>*/
+                                </script>
+                                <input type="hidden" name="montantParCategorie" id="montantParCategorie" />
+                                <input type="hidden" name="nombrePlace" id="nombrePlace"
+                                    th:value="${reservation.nombrePlace}" />
+                                <div class="mt-2">
+                                    <small>Places sélectionnées: <span id="selectedCount">0</span></small>
+                                </div>
+                                <div class="mt-3 d-flex align-items-center gap-2">
+                                    <label class="mb-0">Appliquer catégorie aux sièges sélectionnés:</label>
+                                    <select id="assignCategorySelect" class="form-select"
+                                        style="width:auto;display:inline-block">
+                                        <option value="">-- Choisir catégorie --</option>
+                                        <option th:each="cat,iterStat : ${categories}" th:value="${cat.idCategorie}"
+                                            th:attr="data-cat-color=${cat.couleur}" th:text="${cat.libelle}"></option>
+                                    </select>
+                                    <button type="button" id="applyCategoryBtn"
+                                        class="btn btn-sm btn-outline-primary">Appliquer</button>
+                                </div>
+                                <div class="mt-2" id="category-legend">
+                                    <small>Couleurs des catégories:</small>
+                                    <div class="d-flex flex-wrap gap-2 mt-1">
+                                        <span th:each="cat : ${categories}"
+                                            class="legend-item d-flex align-items-center gap-2"
+                                            th:attr="data-cat-id=${cat.idCategorie}, data-cat-color=${cat.couleur}">
+                                            <span class="legend-dot" style="background:#ddd;"></span>
+                                            <span th:text="${cat.libelle}"></span>
+                                        </span>
+                                    </div>
+                                </div>
+                                <!-- Hidden class legend used by JS (kept for backward compatibility) -->
+                                <div id="class-legend" style="display:none;">
+                                    <span th:each="c : ${classes}"
+                                        th:attr="data-class-id=${c.idClasse}, data-class-color=${c.couleur}"></span>
+                                </div>
+                                <div class="form-text">Cliquez sur les sièges disponibles pour les sélectionner.</div>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="etat" class="form-label">État *</label>
+                                <select class="form-select" id="etat" th:field="*{etat}" required>
+                                    <option th:each="entry : ${etatOptions.entrySet()}" th:value="${entry.key}"
+                                        th:utext="${entry.value}" th:selected="${reservation.etat == entry.key}">
+                                    </option>
+                                </select>
+                            </div>
+                        </div>
+                        <script>
+                            // Sélection de sièges côté client et assignation de catégories
+                            document.addEventListener('DOMContentLoaded', function () {
+                                const seatLayout = document.getElementById('seat-layout');
+                                if (!seatLayout) return;
+                                const selectedSeatsInput = document.getElementById('selectedSeats');
+                                const selectedSeatsByCategoryInput = document.getElementById('selectedSeatsByCategory');
+                                const selectedCountSpan = document.getElementById('selectedCount');
+                                const nombrePlaceInput = document.getElementById('nombrePlace');
+                                const assignCategorySelect = document.getElementById('assignCategorySelect');
+                                const applyCategoryBtn = document.getElementById('applyCategoryBtn');
+
+                                // map seat -> categoryId
+                                let seatToCat = {};
+                                // class id -> color map (populated later)
+                                let classColorMap = {};
+
+                                // set of currently selected seat numbers (strings) — trim values to avoid whitespace bugs
+                                let selected = new Set((selectedSeatsInput.value || '').split(',').map(function (s) { return s ? s.trim() : s; }).filter(function (x) { return x; }));
+
+                                // helper: compute color/style for a category; prefer explicit colors if provided
+                                const categoryColors = [
+                                    ['#fef3c7', '#fde68a'], ['#fecaca', '#fca5a5'], ['#fbcfe8', '#f472b6'],
+                                    ['#c7f9cc', '#34d399'], ['#bbf7d0', '#86efac'], ['#bfdbfe', '#60a5fa'],
+                                    ['#c7d2fe', '#93c5fd'], ['#e9d5ff', '#c084fc'], ['#fce7f3', '#f9a8d4'], ['#e6fffa', '#34d399']
+                                ];
+
+                                // build map of explicit category colors from legend or select options
+                                const catColorMap = {};
+                                Array.from(document.querySelectorAll('#category-legend .legend-item')).forEach(function (item) {
+                                    const id = item.getAttribute('data-cat-id');
+                                    const color = item.getAttribute('data-cat-color');
+                                    if (id && color) catColorMap[id] = color;
+                                });
+
+                                function getCategorySeatStyle(catId) {
+                                    if (!catId) return null;
+                                    const explicit = catColorMap[catId];
+                                    if (explicit) {
+                                        if (explicit.trim().toLowerCase().startsWith('linear-gradient')) {
+                                            return 'background: ' + explicit + '; border: 2px solid rgba(0,0,0,0.12); color: #000;';
+                                        }
+                                        return 'background: ' + explicit + '; border: 2px solid ' + explicit + '; color: #000;';
+                                    }
+                                    const idx = Math.abs(String(catId).split('').reduce(function (a, c) { return a + c.charCodeAt(0); }, 0)) % categoryColors.length;
+                                    const colors = categoryColors[idx];
+                                    return 'background: linear-gradient(135deg, ' + colors[0] + ' 0%, ' + colors[1] + ' 100%); border: 2px solid ' + colors[1] + '; color: #000;';
+                                }
+
+                                function getCategoryDotStyle(catId) {
+                                    const seatStyle = getCategorySeatStyle(catId) || '';
+                                    // add size and display properties for legend dots
+                                    return 'width:18px;height:18px;border-radius:6px;display:inline-block;margin-right:8px;' + seatStyle;
+                                }
+
+                                // style the category legend dots using the same color function (with dot sizing)
+                                Array.from(document.querySelectorAll('#category-legend .legend-item')).forEach(function (item) {
+                                    const catId = item.getAttribute('data-cat-id');
+                                    if (catId) {
+                                        const dot = item.querySelector('.legend-dot');
+                                        if (dot) {
+                                            const style = getCategoryDotStyle(catId);
+                                            if (style) dot.style.cssText = style;
+                                        }
+                                    }
+                                });
+
+                                // style the class legend dots (visible legend)
+                                Array.from(document.querySelectorAll('#class-legend-visible .legend-item')).forEach(function (item) {
+                                    const dot = item.querySelector('.legend-dot');
+                                    const color = item.getAttribute('data-class-color');
+                                    if (!dot) return;
+                                    if (color) {
+                                        if (color.trim().toLowerCase().startsWith('linear-gradient')) {
+                                            dot.style.cssText = 'width:18px;height:18px;border-radius:6px;display:inline-block;margin-right:8px;background:' + color + ';';
+                                        } else {
+                                            dot.style.cssText = 'width:18px;height:18px;border-radius:6px;display:inline-block;margin-right:8px;background:' + color + '; border:3px solid ' + color + ';';
+                                        }
+                                    } else {
+                                        dot.style.cssText = 'width:18px;height:18px;border-radius:6px;display:inline-block;margin-right:8px;background:#ddd;';
+                                    }
+                                });
+
+                                function updateSelectedSeatsByCategoryInput() {
+                                    // convert seat->cat map to cat-> [seats] mapping for easier server handling
+                                    const catMap = {};
+                                    Object.keys(seatToCat).forEach(function (seat) {
+                                        const cat = seatToCat[seat];
+                                        if (!cat) return;
+                                        if (!catMap[cat]) catMap[cat] = [];
+                                        // store numeric seat
+                                        catMap[cat].push(Number(seat));
+                                    });
+                                    selectedSeatsByCategoryInput.value = JSON.stringify(catMap);
+
+                                    // --- Remplir selectedSeatsByClasseCategorie ---
+                                    const scInput = document.getElementById('selectedSeatsByClasseCategorie');
+                                    if (scInput) {
+                                        const mapping = {};
+                                        // Pour chaque siège sélectionné ou assigné
+                                        const allSeats = new Set([...Object.keys(seatToCat), ...selected]);
+                                        allSeats.forEach(function (seatNum) {
+                                            // Chercher l'élément DOM du siège
+                                            const seatElem = seatLayout.querySelector('.seat[data-seat="' + seatNum + '"]');
+                                            if (!seatElem) return;
+                                            // Trouver la classe (class-<id>) si présente
+                                            let classId = null;
+                                            for (let i = 0; i < seatElem.classList.length; i++) {
+                                                const tok = seatElem.classList[i];
+                                                if (tok && tok.startsWith('class-')) { classId = tok.substring(6); break; }
+                                            }
+                                            // Trouver la catégorie (data-cat) ou affectation utilisateur
+                                            const catId = seatElem.dataset.cat || seatToCat[seatNum];
+                                            if (!catId) return; // no category -> cannot map
+                                            // Chercher l'idClasseCategorie correspondant dans la liste globale (injectée côté serveur)
+                                            let idClasseCategorie = null;
+                                            if (window.allClasseCategories) {
+                                                // try exact match (class + category)
+                                                for (const cc of window.allClasseCategories) {
+                                                    if (classId && String(cc.idClasse) === String(classId) && String(cc.idCategorie) === String(catId)) {
+                                                        idClasseCategorie = cc.idClasseCategorie;
+                                                        break;
+                                                    }
+                                                }
+                                                // fallback: if no class present or no exact match, pick any ClasseCategorie for this category
+                                                if (!idClasseCategorie) {
+                                                    for (const cc of window.allClasseCategories) {
+                                                        if (String(cc.idCategorie) === String(catId)) {
+                                                            idClasseCategorie = cc.idClasseCategorie;
+                                                            break;
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                            if (idClasseCategorie) {
+                                                mapping[seatNum] = idClasseCategorie;
+                                            }
+                                        });
+                                        scInput.value = JSON.stringify(mapping);
+                                        try {
+                                            console.debug('updateSelectedSeatsByCategoryInput -> window.allClasseCategories', window.allClasseCategories && window.allClasseCategories.length ? window.allClasseCategories : 'none');
+                                            console.debug('updateSelectedSeatsByCategoryInput -> seatToCat', seatToCat);
+                                            console.debug('updateSelectedSeatsByCategoryInput -> selected (set)', Array.from(selected));
+                                            console.debug('updateSelectedSeatsByCategoryInput -> selectedSeatsByClasseCategorie', scInput.value);
+                                        } catch (e) { /* ignore logging errors */ }
+                                    }
+                                }
+
+                                function updateCounters() {
+                                    // total assigned seats (in seatToCat) + currently selected
+                                    const assignedCount = Object.keys(seatToCat).length;
+                                    const currentSelected = selected.size;
+                                    const total = assignedCount + currentSelected;
+                                    if (selectedCountSpan) selectedCountSpan.innerText = total;
+                                    if (nombrePlaceInput) nombrePlaceInput.value = total;
+                                }
+
+                                // fetch computed price from server and update display
+                                function fetchPriceAndUpdate() {
+                                    try {
+                                        const voyageSelect = document.getElementById('voyageVehicule');
+                                        if (!voyageSelect) return;
+                                        const voyageId = voyageSelect.value;
+                                        if (!voyageId) return;
+
+                                        // determine classeId: prefer the class of the single selected seat if present
+                                        let classeId = null;
+                                        if (selected.size === 1) {
+                                            const seatNum = Array.from(selected)[0];
+                                            const seatElem = seatLayout.querySelector(".seat[data-seat='" + seatNum + "']");
+                                            if (seatElem) {
+                                                const cidToken = Array.from(seatElem.classList).find(t => t && t.startsWith('class-'));
+                                                if (cidToken) classeId = cidToken.substring(6);
+                                            }
+                                        }
+
+                                        // determine categorieId: prefer explicit selection, otherwise category on first selected seat
+                                        let categorieId = null;
+                                        const assignSelect = document.getElementById('assignCategorySelect');
+                                        if (assignSelect && assignSelect.value) {
+                                            categorieId = assignSelect.value;
+                                        } else if (selected.size >= 1) {
+                                            const seatNum = Array.from(selected)[0];
+                                            const seatElem = seatLayout.querySelector(".seat[data-seat='" + seatNum + "']");
+                                            if (seatElem && seatElem.dataset && seatElem.dataset.cat) categorieId = seatElem.dataset.cat;
+                                        }
+
+                                        const params = [];
+                                        params.push('voyageVehiculeId=' + encodeURIComponent(voyageId));
+                                        if (classeId) params.push('classeId=' + encodeURIComponent(classeId));
+                                        if (categorieId) params.push('categorieId=' + encodeURIComponent(categorieId));
+
+                                        const url = '/admin/reservations/price?' + params.join('&');
+                                        fetch(url, { method: 'GET', headers: { 'Accept': 'application/json' } })
+                                            .then(res => res.json())
+                                            .then(data => {
+                                                const priceDisplay = document.getElementById('price-display');
+                                                if (!priceDisplay) return;
+                                                if (data && data.success) {
+                                                    const opts = Array.isArray(data.options) ? data.options : [];
+                                                    // build maps for class and category labels from DOM
+                                                    const classLabelMap = {};
+                                                    Array.from(document.querySelectorAll('#class-legend-visible .legend-item')).forEach(function (item) {
+                                                        const id = item.getAttribute('data-class-id');
+                                                        if (!id) return;
+                                                        // label is the last child span text
+                                                        const spans = item.querySelectorAll('span');
+                                                        const label = spans.length > 1 ? spans[spans.length - 1].textContent.trim() : item.textContent.trim();
+                                                        classLabelMap[id] = label;
+                                                    });
+                                                    const catLabelMap = {};
+                                                    Array.from(document.querySelectorAll('#category-legend .legend-item')).forEach(function (item) {
+                                                        const id = item.getAttribute('data-cat-id');
+                                                        if (!id) return;
+                                                        const spans = item.querySelectorAll('span');
+                                                        const label = spans.length > 1 ? spans[spans.length - 1].textContent.trim() : item.textContent.trim();
+                                                        catLabelMap[id] = label;
+                                                    });
+
+                                                    // price map keyed by label string (exact match)
+                                                    const priceMap = {};
+                                                    opts.forEach(function (o) {
+                                                        if (!o) return;
+                                                        const key = o.label && o.label.trim() !== '' ? o.label.trim() : (o.source || '');
+                                                        if (o.price !== undefined && o.price !== null) {
+                                                            priceMap[key] = parseFloat(o.price);
+                                                        }
+                                                    });
+
+                                                    // helper to get class id from seat element
+                                                    function getSeatClassId(elem) {
+                                                        if (!elem || !elem.classList) return null;
+                                                        for (let i = 0; i < elem.classList.length; i++) {
+                                                            const tok = elem.classList[i];
+                                                            if (tok && tok.startsWith('class-')) return tok.substring(6);
+                                                        }
+                                                        return null;
+                                                    }
+
+                                                    // collect seats: both assigned and currently selected
+                                                    const seats = new Set();
+                                                    Object.keys(seatToCat).forEach(s => seats.add(s));
+                                                    Array.from(selected).forEach(s => seats.add(s));
+
+                                                    const totalsByCategory = {};
+                                                    let grandTotal = 0;
+
+                                                    // find base fallback price if needed
+                                                    const baseFallback = (opts.find(o => o.source === 'voyageVehicule.prix') || opts.find(o => o.source === 'voyage.prix') || opts.find(o => o.source === 'trajet.prix'));
+                                                    const basePrice = baseFallback && baseFallback.price ? parseFloat(baseFallback.price) : 0;
+
+                                                    seats.forEach(function (seatNum) {
+                                                        const seatElem = seatLayout.querySelector(".seat[data-seat='" + seatNum + "']");
+                                                        const catId = (seatToCat && seatToCat[seatNum]) ? seatToCat[seatNum] : (seatElem && seatElem.dataset ? seatElem.dataset.cat : null);
+                                                        const classId = seatElem ? getSeatClassId(seatElem) : null;
+                                                        const classLabel = classId && classLabelMap[classId] ? classLabelMap[classId] : '';
+                                                        const catLabel = catId && catLabelMap[catId] ? catLabelMap[catId] : '';
+
+                                                        // try exact match Class / Cat
+                                                        let lookupLabel = (classLabel || '') + ' / ' + (catLabel || '');
+                                                        let seatPrice = null;
+                                                        if (priceMap[lookupLabel] !== undefined) seatPrice = priceMap[lookupLabel];
+                                                        // try class-only
+                                                        if (seatPrice === null || seatPrice === undefined) {
+                                                            const classOnlyKey = (classLabel || '') + ' / ';
+                                                            if (priceMap[classOnlyKey] !== undefined) seatPrice = priceMap[classOnlyKey];
+                                                        }
+                                                        // try case-insensitive startsWith on class
+                                                        if (seatPrice === null || seatPrice === undefined) {
+                                                            const lowerClass = (classLabel || '').toLowerCase();
+                                                            for (const k in priceMap) {
+                                                                if (lowerClass && k.toLowerCase().startsWith(lowerClass)) { seatPrice = priceMap[k]; break; }
+                                                            }
+                                                        }
+                                                        // fallback
+                                                        if (seatPrice === null || seatPrice === undefined) seatPrice = basePrice;
+
+                                                        // accumulate by category label (use 'Sans catégorie' if none)
+                                                        const catKey = catLabel && catLabel !== '' ? catLabel : 'Sans catégorie';
+                                                        totalsByCategory[catKey] = (totalsByCategory[catKey] || 0) + (seatPrice || 0);
+                                                        grandTotal += (seatPrice || 0);
+                                                    });
+
+                                                    // render options table and totals
+                                                    let html = '';
+                                                    // options (same as before)
+                                                    const classCatOpts = opts.filter(o => o.source && (o.source.indexOf('tarif_classe_categorie_trajet') !== -1 || o.source.indexOf('tarif_special_categorie') !== -1));
+                                                    if (classCatOpts.length > 0) {
+                                                        html += '<table class="table table-sm mb-2"><thead><tr><th>Classe / Catégorie</th><th>Montant</th></tr></thead><tbody>';
+                                                        classCatOpts.forEach(function (opt) {
+                                                            const label = opt.label && opt.label.trim() !== '' ? opt.label : (opt.source || '');
+                                                            html += '<tr><td>' + label + '</td><td>' + (opt.price || '') + '</td></tr>';
+                                                        });
+                                                        html += '</tbody></table>';
+                                                    }
+
+
+                                                    // Fill montantParCategorie hidden input as JSON {catLabel: montant}
+                                                    var montantParCategorie = {};
+                                                    // Totaux par catégorie table
+                                                    html += '<div class="mb-2"><strong>Totaux par catégorie</strong>';
+                                                    html += '<table class="table table-sm"><tbody>';
+                                                    Object.keys(totalsByCategory).sort().forEach(function (cat) {
+                                                        html += '<tr><td>' + cat + '</td><td>' + (totalsByCategory[cat].toLocaleString('fr-FR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })) + '</td></tr>';
+                                                        montantParCategorie[cat] = totalsByCategory[cat];
+                                                    });
+                                                    html += '<tr class="table-active"><td><strong>Total</strong></td><td><strong>' + (grandTotal.toLocaleString('fr-FR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })) + '</strong></td></tr>';
+                                                    html += '</tbody></table></div>';
+
+                                                    priceDisplay.innerHTML = html;
+                                                    // Set the hidden input
+                                                    var montantParCategorieInput = document.getElementById('montantParCategorie');
+                                                    if (montantParCategorieInput) {
+                                                        montantParCategorieInput.value = JSON.stringify(montantParCategorie);
+                                                    }
+
+                                                } else {
+                                                    priceDisplay.innerHTML = '<span id="computedPrice">—</span> <small class="text-muted" id="computedPriceSource"></small>';
+                                                }
+                                            }).catch(err => {
+                                                const priceDisplay = document.getElementById('price-display');
+                                                if (priceDisplay) priceDisplay.innerHTML = '<span id="computedPrice">—</span> <small class="text-muted" id="computedPriceSource"></small>';
+                                            });
+                                    } catch (e) { /* ignore */ }
+                                }
+
+                                function applyCategoryToSeats(catId) {
+                                    if (!catId) return;
+                                    const selOpt = assignCategorySelect.selectedOptions && assignCategorySelect.selectedOptions[0];
+                                    const optColor = selOpt ? selOpt.getAttribute('data-cat-color') : null;
+                                    // Apply category to currently selected seats, then deselect them so they are not affected by subsequent applies
+                                    Array.from(Array.from(selected)).forEach(seatNum => {
+                                        seatToCat[seatNum] = parseInt(catId);
+                                        const seatElem = seatLayout.querySelector(".seat[data-seat='" + seatNum + "']");
+                                        if (seatElem) {
+                                            let style = null;
+                                            if (optColor) {
+                                                if (optColor.trim().toLowerCase().startsWith('linear-gradient')) {
+                                                    style = 'background: ' + optColor + '; border: 2px solid rgba(0,0,0,0.12); color: #000;';
+                                                } else {
+                                                    style = 'background: ' + optColor + '; border: 2px solid ' + optColor + '; color: #000;';
+                                                }
+                                            } else {
+                                                style = getCategorySeatStyle(catId);
+                                            }
+                                            seatElem.dataset.cat = catId;
+                                            if (optColor) seatElem.dataset.catColor = optColor;
+                                            seatElem.style.cssText = style;
+                                            seatElem.title = (seatElem.getAttribute('data-seat') || '') + ' - Catégorie: ' + (assignCategorySelect.options[assignCategorySelect.selectedIndex].text || '');
+                                            // remove selected visual so subsequent applies don't include this seat
+                                            seatElem.classList.remove('selected');
+                                        }
+                                        // remove from selected set
+                                        selected.delete(seatNum);
+                                    });
+                                    // update hidden mapping input (category -> [seats]) and counters
+                                    selectedSeatsInput.value = Array.from(selected).join(',');
+                                    updateSelectedSeatsByCategoryInput();
+                                    updateCounters();
+                                }
+
+                                seatLayout.addEventListener('click', function (e) {
+                                    if (e.target.classList.contains('seat') && e.target.classList.contains('available')) {
+                                        const seatNum = e.target.getAttribute('data-seat');
+                                        const availableStyle = "background: linear-gradient(135deg, #dcfce7 0%, #bbf7d0 100%); border: 2px solid #86efac; color: #000;";
+                                        const selectedStyle = "background: linear-gradient(135deg, #2563eb 0%, #1e40af 100%); border: 2px solid #93c5fd; color: #fff;";
+                                        if (selected.has(seatNum)) {
+                                            selected.delete(seatNum);
+                                            e.target.classList.remove('selected');
+                                            // if a category assigned to this seat, show its color
+                                            if (seatToCat[seatNum]) {
+                                                const style = getCategoryStyle(seatToCat[seatNum]);
+                                                e.target.style.cssText = style;
+                                            } else {
+                                                // if seat belongs to a classe, restore its border color only
+                                                const cidToken = Array.from(e.target.classList).find(t => t && t.startsWith('class-'));
+                                                if (cidToken) {
+                                                    const cid = cidToken.substring(6);
+                                                    const col = classColorMap[cid];
+                                                    if (col) {
+                                                        e.target.style.border = '3px solid ' + col;
+                                                        // preserve background (don't overwrite), ensure readable text
+                                                        e.target.style.color = '#000';
+                                                    } else {
+                                                        e.target.style.cssText = availableStyle;
+                                                    }
+                                                } else {
+                                                    e.target.style.cssText = availableStyle;
+                                                }
+                                            }
+                                        } else {
+                                            selected.add(seatNum);
+                                            e.target.classList.add('selected');
+                                            // selected visual overrides category color while selected
+                                            e.target.style.cssText = selectedStyle;
+                                        }
+                                        selectedSeatsInput.value = Array.from(selected).join(',');
+                                        // keep the per-seat/category mapping in sync when selection changes
+                                        try { updateSelectedSeatsByCategoryInput(); } catch (e) { /* ignore */ }
+                                        updateCounters();
+                                        // update computed price when selection changes
+                                        fetchPriceAndUpdate();
+                                    }
+                                });
+
+                                // initialize seat visuals
+                                Array.from(seatLayout.querySelectorAll('.seat.available')).forEach(function (seatDiv) {
+                                    const seatNum = seatDiv.getAttribute('data-seat');
+                                    const availableStyle = "background: linear-gradient(135deg, #dcfce7 0%, #bbf7d0 100%); border: 2px solid #86efac; color: #000;";
+                                    const selectedStyle = "background: linear-gradient(135deg, #2563eb 0%, #1e40af 100%); border: 2px solid #93c5fd; color: #fff;";
+                                    if (selected.has(seatNum)) {
+                                        seatDiv.classList.add('selected');
+                                        seatDiv.style.cssText = selectedStyle;
+                                    } else if (seatToCat[seatNum]) {
+                                        seatDiv.style.cssText = getCategoryStyle(seatToCat[seatNum]);
+                                    } else {
+                                        seatDiv.style.cssText = availableStyle;
+                                    }
+                                });
+
+                                // apply category button
+                                if (applyCategoryBtn) {
+                                    applyCategoryBtn.addEventListener('click', function () {
+                                        const catId = assignCategorySelect.value;
+                                        if (!catId) return;
+                                        applyCategoryToSeats(catId);
+                                        // update computed price after applying category
+                                        fetchPriceAndUpdate();
+                                    });
+                                }
+
+                                // initialize counters and mapping
+                                updateSelectedSeatsByCategoryInput();
+                                // ensure mapping is fresh just before submit
+                                const formEl = document.querySelector('form');
+                                if (formEl) {
+                                    formEl.addEventListener('submit', function () {
+                                        try { updateSelectedSeatsByCategoryInput(); } catch (e) { /* ignore */ }
+                                    });
+                                }
+                                updateCounters();
+                                // initial price fetch
+                                fetchPriceAndUpdate();
+                                // Inject CSS rules for classes: color only the seat borders (keep existing backgrounds)
+                                try {
+                                    const classLegend = document.getElementById('class-legend');
+                                    const classColorMap = {};
+                                    if (classLegend) {
+                                        const style = document.createElement('style');
+                                        Array.from(classLegend.querySelectorAll('span')).forEach(function (span) {
+                                            const id = span.getAttribute('data-class-id');
+                                            const color = span.getAttribute('data-class-color');
+                                            if (!id || !color) return;
+                                            classColorMap[id] = color;
+                                            // only set border to the class color; do not override background
+                                            let rule = '.class-' + id + ' { border: 3px solid ' + color + ' !important; }\n';
+                                            style.appendChild(document.createTextNode(rule));
+                                        });
+                                        document.head.appendChild(style);
+                                    }
+
+                                    // helper to get class id from seat element (first token starting with class-)
+                                    function getSeatClassId(elem) {
+                                        if (!elem || !elem.classList) return null;
+                                        for (let i = 0; i < elem.classList.length; i++) {
+                                            const tok = elem.classList[i];
+                                            if (tok && tok.startsWith('class-')) return tok.substring(6);
+                                        }
+                                        return null;
+                                    }
+
+                                    function applyClassBorder(elem) {
+                                        const cid = getSeatClassId(elem);
+                                        if (!cid) return;
+                                        const col = classColorMap[cid];
+                                        if (!col) return;
+                                        // only change border, preserve existing background
+                                        try {
+                                            elem.style.border = '3px solid ' + col;
+                                        } catch (e) { /* ignore style errors */ }
+                                    }
+
+                                    // update initialization to respect class-based borders
+                                    Array.from(seatLayout.querySelectorAll('.seat.available')).forEach(function (seatDiv) {
+                                        const seatNum = seatDiv.getAttribute('data-seat');
+                                        const availableStyle = "background: linear-gradient(135deg, #dcfce7 0%, #bbf7d0 100%); border: 2px solid #86efac; color: #000;";
+                                        const selectedStyle = "background: linear-gradient(135deg, #2563eb 0%, #1e40af 100%); border: 2px solid #93c5fd; color: #fff;";
+                                        if (selected.has(seatNum)) {
+                                            seatDiv.classList.add('selected');
+                                            seatDiv.style.cssText = selectedStyle;
+                                        } else if (seatToCat[seatNum]) {
+                                            seatDiv.style.cssText = getCategoryStyle(seatToCat[seatNum]);
+                                        } else {
+                                            // respect class assignment: if seat has class-<id>, only color border
+                                            const cid = getSeatClassId(seatDiv);
+                                            if (cid) {
+                                                applyClassBorder(seatDiv);
+                                            } else {
+                                                seatDiv.style.cssText = availableStyle;
+                                            }
+                                        }
+                                    });
+
+                                    // modify click handler restore behavior to respect class border
+                                    // (we replace the earlier seatLayout click handler's body below by adjusting only the unselect branch)
+                                } catch (e) { /* ignore */ }
+                            });
+                        </script>
+                        <style>
+                            .seat-rows {
+                                display: flex;
+                                flex-direction: column;
+                                gap: 8px;
+                                align-items: center;
+                            }
+
+                            .seat-row {
+                                display: flex;
+                                align-items: center;
+                                gap: 16px;
+                                justify-content: center;
+                            }
+
+                            .seat-block {
+                                display: flex;
+                                gap: 8px;
+                            }
+
+                            .seat {
+                                width: 44px;
+                                height: 44px;
+                                border-radius: 8px;
+                                background: #f1f1f1;
+                                display: flex;
+                                align-items: center;
+                                justify-content: center;
+                                font-weight: bold;
+                                cursor: pointer;
+                                border: 2px solid #ccc;
+                                transition: background 0.2s, border 0.2s;
+                            }
+
+                            .seat.available:hover {
+                                background: #e0eaff;
+                                border-color: #667eea;
+                            }
+
+                            .seat.selected {
+                                background: #667eea;
+                                color: #fff;
+                                border-color: #4b3fa2;
+                            }
+
+                            .seat.reserved {
+                                background: linear-gradient(135deg, #fee2e2 0%, #fecaca 100%);
+                                color: #fff;
+                                border: 2px solid #fca5a5;
+                                cursor: not-allowed;
+                            }
+
+                            .driver-seat {
+                                width: 44px;
+                                height: 44px;
+                                border-radius: 50%;
+                                background: #222;
+                                color: #fff;
+                                display: flex;
+                                align-items: center;
+                                justify-content: center;
+                                font-weight: bold;
+                                margin-right: 12px;
+                            }
+
+                            .aisle {
+                                width: 32px;
+                            }
+
+                            .front-row {
+                                margin-bottom: 8px;
+                            }
+
+                            .front-block {
+                                gap: 8px;
+                            }
+
+                            .left-block,
+                            .right-block {
+                                gap: 8px;
+                            }
+
+                            /* Center the overall seat layout container */
+                            #seat-layout {
+                                display: flex;
+                                justify-content: center;
+                                width: 100%;
+                            }
+
+                            /* Legend styles */
+                            .seat-legend {
+                                margin-top: 8px;
+                            }
+
+                            .seat-legend .legend-item {
+                                display: flex;
+                                align-items: center;
+                                gap: 8px;
+                                font-size: 0.9rem;
+                                color: #333;
+                            }
+
+                            .seat-legend .legend-dot {
+                                width: 18px;
+                                height: 18px;
+                                border-radius: 6px;
+                                display: inline-block;
+                            }
+                        </style>
+
+                        <div class="mb-3">
+                            <label for="date" class="form-label">Date de réservation *</label>
+                            <input type="datetime-local" class="form-control" id="date" th:field="*{date}" required />
+                        </div>
+
+                        <div class="d-flex gap-2">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="bi bi-save"></i> Enregistrer
+                            </button>
+                            <a th:href="@{/admin/reservations}" class="btn btn-secondary">
+                                <i class="bi bi-x-circle"></i> Annuler
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </th:block>
+</body>
+
+</html>

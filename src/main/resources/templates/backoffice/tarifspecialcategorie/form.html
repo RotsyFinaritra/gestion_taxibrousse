@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{backoffice/layout :: layout (~{::title}, ~{::content})}">
+<head>
+    <title>Tarif Spécial - Administration</title>
+</head>
+<body>
+    <th:block th:fragment="content">
+        <div class="container-fluid">
+            <h1 th:text="${tarif.idTarifSpecialCategorie != null} ? 'Modifier un tarif spécial' : 'Ajouter un tarif spécial'"></h1>
+            <form th:action="${tarif.idTarifSpecialCategorie != null} ? @{/admin/tarif-special-categorie/update} : @{/admin/tarif-special-categorie/save}" method="post">
+                <input type="hidden" th:if="${tarif.idTarifSpecialCategorie != null}" name="idTarifSpecialCategorie" th:value="${tarif.idTarifSpecialCategorie}" />
+
+                <div class="mb-3">
+                    <label for="classeCategorie" class="form-label">Classe-Catégorie</label>
+                    <select id="classeCategorie" name="classeCategorie.idClasseCategorie" class="form-control" required>
+                        <option th:each="cc : ${classeCategories}"
+                                th:value="${cc.idClasseCategorie}"
+                                th:text="${cc.classe.libelle + ' / ' + cc.categorie.libelle}"
+                                th:selected="${tarif.classeCategorie != null} ? (tarif.classeCategorie.idClasseCategorie == cc.idClasseCategorie) : false">
+                        </option>
+                    </select>
+                </div>
+
+                <div class="mb-3">
+                    <label for="categorie" class="form-label">Catégorie</label>
+                    <select id="categorie" name="categorie.idCategorie" class="form-control" required>
+                        <option th:each="c : ${categories}" th:value="${c.idCategorie}" th:text="${c.libelle}" th:selected="${tarif.categorie != null} ? (tarif.categorie.idCategorie == c.idCategorie) : false"></option>
+                    </select>
+                </div>
+
+                <div class="mb-3">
+                    <label for="remise" class="form-label">Remise (%)</label>
+                    <input type="number" step="0.01" class="form-control" id="remise" name="remise" th:value="${tarif.remise}" required />
+                </div>
+
+                <button type="submit" class="btn btn-success">Enregistrer</button>
+                <a th:href="@{/admin/tarif-special-categorie}" class="btn btn-secondary">Annuler</a>
+            </form>
+        </div>
+    </th:block>
+</body>
+</html>
