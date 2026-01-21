@@ -45,28 +45,28 @@
                                     </option>
                                 </select>
                                 <script>
-                                    function onVoyageVehiculeChange(select) {
-                                        var id = select.value;
-                                        // collect current form values to preserve them on reload
-                                        var nom = encodeURIComponent(document.getElementById('nom')?.value || '');
-                                        var contact = encodeURIComponent(document.getElementById('contact')?.value || '');
-                                        var clientId = encodeURIComponent(document.getElementById('client')?.value || '');
-                                        var etat = encodeURIComponent(document.getElementById('etat')?.value || '');
-                                        var date = encodeURIComponent(document.getElementById('date')?.value || '');
-                                        var selectedSeats = encodeURIComponent(document.getElementById('selectedSeats')?.value || '');
-                                        var idRes = encodeURIComponent(document.getElementById('idReservation')?.value || '');
-                                        var params = [];
-                                        params.push('voyageVehiculeId=' + encodeURIComponent(id));
-                                        if (selectedSeats) params.push('selectedSeats=' + selectedSeats);
-                                        if (nom) params.push('nom=' + nom);
-                                        if (contact) params.push('contact=' + contact);
-                                        if (clientId) params.push('clientId=' + clientId);
-                                        if (etat) params.push('etat=' + etat);
-                                        if (date) params.push('date=' + date);
-                                        if (idRes) params.push('idReservation=' + idRes);
-                                        var url = window.location.pathname + '?' + params.join('&');
-                                        window.location.href = url;
-                                    }
+                                function onVoyageVehiculeChange(select) {
+                                    var id = select.value;
+                                    // collect current form values to preserve them on reload
+                                    var nom = encodeURIComponent(document.getElementById('nom')?.value || '');
+                                    var contact = encodeURIComponent(document.getElementById('contact')?.value || '');
+                                    var clientId = encodeURIComponent(document.getElementById('client')?.value || '');
+                                    var etat = encodeURIComponent(document.getElementById('etat')?.value || '');
+                                    var date = encodeURIComponent(document.getElementById('date')?.value || '');
+                                    var selectedSeats = encodeURIComponent(document.getElementById('selectedSeats')?.value || '');
+                                    var idRes = encodeURIComponent(document.getElementById('idReservation')?.value || '');
+                                    var params = [];
+                                    params.push('voyageVehiculeId=' + encodeURIComponent(id));
+                                    if (selectedSeats) params.push('selectedSeats=' + selectedSeats);
+                                    if (nom) params.push('nom=' + nom);
+                                    if (contact) params.push('contact=' + contact);
+                                    if (clientId) params.push('clientId=' + clientId);
+                                    if (etat) params.push('etat=' + etat);
+                                    if (date) params.push('date=' + date);
+                                    if (idRes) params.push('idReservation=' + idRes);
+                                    var url = window.location.pathname + '?' + params.join('&');
+                                    window.location.href = url;
+                                }
                                 </script>
                             </div>
 
@@ -86,23 +86,19 @@
                                 <label class="form-label">Sélection des sièges *</label>
                                 <div class="seat-legend mt-3 d-flex flex-wrap gap-3" style="align-items:center;">
                                     <div class="legend-item d-flex align-items-center gap-2">
-                                        <span class="legend-dot"
-                                            style="background: linear-gradient(135deg, #dcfce7 0%, #bbf7d0 100%); border: 2px solid #86efac;"></span>
+                                        <span class="legend-dot" style="background: linear-gradient(135deg, #dcfce7 0%, #bbf7d0 100%); border: 2px solid #86efac;"></span>
                                         <span>Disponible</span>
                                     </div>
                                     <div class="legend-item d-flex align-items-center gap-2">
-                                        <span class="legend-dot"
-                                            style="background: linear-gradient(135deg, #fee2e2 0%, #fecaca 100%); border: 2px solid #fca5a5;"></span>
+                                        <span class="legend-dot" style="background: linear-gradient(135deg, #fee2e2 0%, #fecaca 100%); border: 2px solid #fca5a5;"></span>
                                         <span>Réservée</span>
                                     </div>
                                     <div class="legend-item d-flex align-items-center gap-2">
-                                        <span class="legend-dot"
-                                            style="background: linear-gradient(135deg, #2563eb 0%, #1e40af 100%); border: 2px solid #93c5fd;"></span>
+                                        <span class="legend-dot" style="background: linear-gradient(135deg, #2563eb 0%, #1e40af 100%); border: 2px solid #93c5fd;"></span>
                                         <span>Sélectionnée</span>
                                     </div>
                                     <div class="legend-item d-flex align-items-center gap-2">
-                                        <span class="legend-dot"
-                                            style="background: linear-gradient(135deg, #1e293b 0%, #334155 100%); border: 2px solid #475569;"></span>
+                                        <span class="legend-dot" style="background: linear-gradient(135deg, #1e293b 0%, #334155 100%); border: 2px solid #475569;"></span>
                                         <span>Chauffeur</span>
                                     </div>
                                 </div>
@@ -114,15 +110,14 @@
                                     </div>
                                 </div>
                                 <!-- Visible legend for Classe colors -->
-                                <div id="class-legend-visible" class="seat-legend mt-3 d-flex flex-wrap gap-3"
-                                    style="align-items:center;">
+                                <div id="class-legend-visible" class="seat-legend mt-3 d-flex flex-wrap gap-3" style="align-items:center;">
                                     <div class="legend-item d-flex align-items-center gap-2">
                                         <span>Couleurs des classes:</span>
                                     </div>
                                     <div class="d-flex flex-wrap gap-2 mt-1">
                                         <span th:each="c : ${classes}"
-                                            class="legend-item d-flex align-items-center gap-2"
-                                            th:attr="data-class-id=${c.idClasse}, data-class-color=${c.couleur}">
+                                              class="legend-item d-flex align-items-center gap-2"
+                                              th:attr="data-class-id=${c.idClasse}, data-class-color=${c.couleur}">
                                             <span class="legend-dot" style="background:#ddd;"></span>
                                             <span th:text="${c.libelle}"></span>
                                         </span>
@@ -132,60 +127,61 @@
                                 <input type="hidden" name="selectedSeats" id="selectedSeats"
                                     th:value="${selectedSeats}" />
                                 <input type="hidden" name="selectedSeatsByCategory" id="selectedSeatsByCategory" />
-                                <input type="hidden" name="selectedSeatsByClasseCategorie"
-                                    id="selectedSeatsByClasseCategorie" />
-                                <script th:inline="javascript">
-                                    /*<![CDATA[*/
-                                    window.allClasseCategories = [];
-                                    /*[# th:each="cc : ${classeCategories}" ]*/
-                                    window.allClasseCategories.push({
-                                        idClasseCategorie: /*[[${cc.idClasseCategorie}]]*/ 0,
-                                        idClasse: /*[[${cc.classe.idClasse}]]*/ 0,
-                                        idCategorie: /*[[${cc.categorie.idCategorie}]]*/ 0
-                                    });
-                                    /*[/]*/
-                                    /*]]>*/
-                                </script>
+                                                <input type="hidden" name="selectedSeatsByClasseCategorie" id="selectedSeatsByClasseCategorie" />
+                                                <script th:inline="javascript">
+                                                /*<![CDATA[*/
+                                                window.allClasseCategories = [
+                                                /*[# th:each="cc : ${classeCategories}" ]*/
+                                                {
+                                                    idClasseCategorie: /*[[${cc.idClasseCategorie}]]*/0,
+                                                    idClasse: /*[[${cc.classe.idClasse}]]*/0,
+                                                    idCategorie: /*[[${cc.categorie.idCategorie}]]*/0
+                                                }/*[[${ccStat.last} ? '' : ',' ]]*/
+                                                /*[/]*/
+                                                ];
+                                                /*]]>*/
+                                                </script>
                                 <input type="hidden" name="montantParCategorie" id="montantParCategorie" />
-                                <input type="hidden" name="nombrePlace" id="nombrePlace"
-                                    th:value="${reservation.nombrePlace}" />
+                                <input type="hidden" name="nombrePlace" id="nombrePlace" th:value="${reservation.nombrePlace}" />
                                 <div class="mt-2">
                                     <small>Places sélectionnées: <span id="selectedCount">0</span></small>
                                 </div>
                                 <div class="mt-3 d-flex align-items-center gap-2">
                                     <label class="mb-0">Appliquer catégorie aux sièges sélectionnés:</label>
-                                    <select id="assignCategorySelect" class="form-select"
-                                        style="width:auto;display:inline-block">
+                                    <select id="assignCategorySelect" class="form-select" style="width:auto;display:inline-block">
                                         <option value="">-- Choisir catégorie --</option>
-                                        <option th:each="cat,iterStat : ${categories}" th:value="${cat.idCategorie}"
-                                            th:attr="data-cat-color=${cat.couleur}" th:text="${cat.libelle}"></option>
+                                        <option th:each="cat,iterStat : ${categories}"
+                                                th:value="${cat.idCategorie}"
+                                                th:attr="data-cat-color=${cat.couleur}"
+                                                th:text="${cat.libelle}"></option>
                                     </select>
-                                    <button type="button" id="applyCategoryBtn"
-                                        class="btn btn-sm btn-outline-primary">Appliquer</button>
+                                    <button type="button" id="applyCategoryBtn" class="btn btn-sm btn-outline-primary">Appliquer</button>
                                 </div>
                                 <div class="mt-2" id="category-legend">
                                     <small>Couleurs des catégories:</small>
                                     <div class="d-flex flex-wrap gap-2 mt-1">
-                                        <span th:each="cat : ${categories}"
-                                            class="legend-item d-flex align-items-center gap-2"
-                                            th:attr="data-cat-id=${cat.idCategorie}, data-cat-color=${cat.couleur}">
-                                            <span class="legend-dot" style="background:#ddd;"></span>
-                                            <span th:text="${cat.libelle}"></span>
-                                        </span>
+                                                                                <span th:each="cat : ${categories}"
+                                                                                            class="legend-item d-flex align-items-center gap-2"
+                                                                                            th:attr="data-cat-id=${cat.idCategorie}, data-cat-color=${cat.couleur}">
+                                                                                        <span class="legend-dot" style="background:#ddd;"></span>
+                                                                                        <span th:text="${cat.libelle}"></span>
+                                                                                </span>
                                     </div>
                                 </div>
                                 <!-- Hidden class legend used by JS (kept for backward compatibility) -->
                                 <div id="class-legend" style="display:none;">
                                     <span th:each="c : ${classes}"
-                                        th:attr="data-class-id=${c.idClasse}, data-class-color=${c.couleur}"></span>
+                                          th:attr="data-class-id=${c.idClasse}, data-class-color=${c.couleur}"></span>
                                 </div>
                                 <div class="form-text">Cliquez sur les sièges disponibles pour les sélectionner.</div>
                             </div>
                             <div class="col-md-6 mb-3">
                                 <label for="etat" class="form-label">État *</label>
                                 <select class="form-select" id="etat" th:field="*{etat}" required>
-                                    <option th:each="entry : ${etatOptions.entrySet()}" th:value="${entry.key}"
-                                        th:utext="${entry.value}" th:selected="${reservation.etat == entry.key}">
+                                    <option th:each="entry : ${etatOptions.entrySet()}"
+                                            th:value="${entry.key}"
+                                            th:utext="${entry.value}"
+                                            th:selected="${reservation.etat == entry.key}">
                                     </option>
                                 </select>
                             </div>
@@ -208,18 +204,18 @@
                                 let classColorMap = {};
 
                                 // set of currently selected seat numbers (strings) — trim values to avoid whitespace bugs
-                                let selected = new Set((selectedSeatsInput.value || '').split(',').map(function (s) { return s ? s.trim() : s; }).filter(function (x) { return x; }));
+                                let selected = new Set((selectedSeatsInput.value || '').split(',').map(function(s){ return s ? s.trim() : s; }).filter(function(x){ return x; }));
 
                                 // helper: compute color/style for a category; prefer explicit colors if provided
                                 const categoryColors = [
-                                    ['#fef3c7', '#fde68a'], ['#fecaca', '#fca5a5'], ['#fbcfe8', '#f472b6'],
-                                    ['#c7f9cc', '#34d399'], ['#bbf7d0', '#86efac'], ['#bfdbfe', '#60a5fa'],
-                                    ['#c7d2fe', '#93c5fd'], ['#e9d5ff', '#c084fc'], ['#fce7f3', '#f9a8d4'], ['#e6fffa', '#34d399']
+                                    ['#fef3c7','#fde68a'], ['#fecaca','#fca5a5'], ['#fbcfe8','#f472b6'],
+                                    ['#c7f9cc','#34d399'], ['#bbf7d0','#86efac'], ['#bfdbfe','#60a5fa'],
+                                    ['#c7d2fe','#93c5fd'], ['#e9d5ff','#c084fc'], ['#fce7f3','#f9a8d4'], ['#e6fffa','#34d399']
                                 ];
 
                                 // build map of explicit category colors from legend or select options
                                 const catColorMap = {};
-                                Array.from(document.querySelectorAll('#category-legend .legend-item')).forEach(function (item) {
+                                Array.from(document.querySelectorAll('#category-legend .legend-item')).forEach(function(item){
                                     const id = item.getAttribute('data-cat-id');
                                     const color = item.getAttribute('data-cat-color');
                                     if (id && color) catColorMap[id] = color;
@@ -234,7 +230,7 @@
                                         }
                                         return 'background: ' + explicit + '; border: 2px solid ' + explicit + '; color: #000;';
                                     }
-                                    const idx = Math.abs(String(catId).split('').reduce(function (a, c) { return a + c.charCodeAt(0); }, 0)) % categoryColors.length;
+                                    const idx = Math.abs(String(catId).split('').reduce(function(a,c){return a + c.charCodeAt(0);},0)) % categoryColors.length;
                                     const colors = categoryColors[idx];
                                     return 'background: linear-gradient(135deg, ' + colors[0] + ' 0%, ' + colors[1] + ' 100%); border: 2px solid ' + colors[1] + '; color: #000;';
                                 }
@@ -246,7 +242,7 @@
                                 }
 
                                 // style the category legend dots using the same color function (with dot sizing)
-                                Array.from(document.querySelectorAll('#category-legend .legend-item')).forEach(function (item) {
+                                Array.from(document.querySelectorAll('#category-legend .legend-item')).forEach(function(item){
                                     const catId = item.getAttribute('data-cat-id');
                                     if (catId) {
                                         const dot = item.querySelector('.legend-dot');
@@ -258,7 +254,7 @@
                                 });
 
                                 // style the class legend dots (visible legend)
-                                Array.from(document.querySelectorAll('#class-legend-visible .legend-item')).forEach(function (item) {
+                                Array.from(document.querySelectorAll('#class-legend-visible .legend-item')).forEach(function(item){
                                     const dot = item.querySelector('.legend-dot');
                                     const color = item.getAttribute('data-class-color');
                                     if (!dot) return;
@@ -276,7 +272,7 @@
                                 function updateSelectedSeatsByCategoryInput() {
                                     // convert seat->cat map to cat-> [seats] mapping for easier server handling
                                     const catMap = {};
-                                    Object.keys(seatToCat).forEach(function (seat) {
+                                    Object.keys(seatToCat).forEach(function(seat) {
                                         const cat = seatToCat[seat];
                                         if (!cat) return;
                                         if (!catMap[cat]) catMap[cat] = [];
@@ -291,36 +287,26 @@
                                         const mapping = {};
                                         // Pour chaque siège sélectionné ou assigné
                                         const allSeats = new Set([...Object.keys(seatToCat), ...selected]);
-                                        allSeats.forEach(function (seatNum) {
+                                        allSeats.forEach(function(seatNum) {
                                             // Chercher l'élément DOM du siège
                                             const seatElem = seatLayout.querySelector('.seat[data-seat="' + seatNum + '"]');
                                             if (!seatElem) return;
-                                            // Trouver la classe (class-<id>) si présente
+                                            // Trouver la classe (class-<id>)
                                             let classId = null;
                                             for (let i = 0; i < seatElem.classList.length; i++) {
                                                 const tok = seatElem.classList[i];
                                                 if (tok && tok.startsWith('class-')) { classId = tok.substring(6); break; }
                                             }
-                                            // Trouver la catégorie (data-cat) ou affectation utilisateur
+                                            // Trouver la catégorie (data-cat)
                                             const catId = seatElem.dataset.cat || seatToCat[seatNum];
-                                            if (!catId) return; // no category -> cannot map
+                                            if (!classId || !catId) return;
                                             // Chercher l'idClasseCategorie correspondant dans la liste globale (injectée côté serveur)
                                             let idClasseCategorie = null;
                                             if (window.allClasseCategories) {
-                                                // try exact match (class + category)
                                                 for (const cc of window.allClasseCategories) {
-                                                    if (classId && String(cc.idClasse) === String(classId) && String(cc.idCategorie) === String(catId)) {
+                                                    if (String(cc.idClasse) === String(classId) && String(cc.idCategorie) === String(catId)) {
                                                         idClasseCategorie = cc.idClasseCategorie;
                                                         break;
-                                                    }
-                                                }
-                                                // fallback: if no class present or no exact match, pick any ClasseCategorie for this category
-                                                if (!idClasseCategorie) {
-                                                    for (const cc of window.allClasseCategories) {
-                                                        if (String(cc.idCategorie) === String(catId)) {
-                                                            idClasseCategorie = cc.idClasseCategorie;
-                                                            break;
-                                                        }
                                                     }
                                                 }
                                             }
@@ -329,12 +315,6 @@
                                             }
                                         });
                                         scInput.value = JSON.stringify(mapping);
-                                        try {
-                                            console.debug('updateSelectedSeatsByCategoryInput -> window.allClasseCategories', window.allClasseCategories && window.allClasseCategories.length ? window.allClasseCategories : 'none');
-                                            console.debug('updateSelectedSeatsByCategoryInput -> seatToCat', seatToCat);
-                                            console.debug('updateSelectedSeatsByCategoryInput -> selected (set)', Array.from(selected));
-                                            console.debug('updateSelectedSeatsByCategoryInput -> selectedSeatsByClasseCategorie', scInput.value);
-                                        } catch (e) { /* ignore logging errors */ }
                                     }
                                 }
 
@@ -346,7 +326,7 @@
                                     if (selectedCountSpan) selectedCountSpan.innerText = total;
                                     if (nombrePlaceInput) nombrePlaceInput.value = total;
                                 }
-
+                                
                                 // fetch computed price from server and update display
                                 function fetchPriceAndUpdate() {
                                     try {
@@ -392,26 +372,26 @@
                                                     const opts = Array.isArray(data.options) ? data.options : [];
                                                     // build maps for class and category labels from DOM
                                                     const classLabelMap = {};
-                                                    Array.from(document.querySelectorAll('#class-legend-visible .legend-item')).forEach(function (item) {
+                                                    Array.from(document.querySelectorAll('#class-legend-visible .legend-item')).forEach(function(item){
                                                         const id = item.getAttribute('data-class-id');
                                                         if (!id) return;
                                                         // label is the last child span text
                                                         const spans = item.querySelectorAll('span');
-                                                        const label = spans.length > 1 ? spans[spans.length - 1].textContent.trim() : item.textContent.trim();
+                                                        const label = spans.length > 1 ? spans[spans.length-1].textContent.trim() : item.textContent.trim();
                                                         classLabelMap[id] = label;
                                                     });
                                                     const catLabelMap = {};
-                                                    Array.from(document.querySelectorAll('#category-legend .legend-item')).forEach(function (item) {
+                                                    Array.from(document.querySelectorAll('#category-legend .legend-item')).forEach(function(item){
                                                         const id = item.getAttribute('data-cat-id');
                                                         if (!id) return;
                                                         const spans = item.querySelectorAll('span');
-                                                        const label = spans.length > 1 ? spans[spans.length - 1].textContent.trim() : item.textContent.trim();
+                                                        const label = spans.length > 1 ? spans[spans.length-1].textContent.trim() : item.textContent.trim();
                                                         catLabelMap[id] = label;
                                                     });
 
                                                     // price map keyed by label string (exact match)
                                                     const priceMap = {};
-                                                    opts.forEach(function (o) {
+                                                    opts.forEach(function(o){
                                                         if (!o) return;
                                                         const key = o.label && o.label.trim() !== '' ? o.label.trim() : (o.source || '');
                                                         if (o.price !== undefined && o.price !== null) {
@@ -441,7 +421,7 @@
                                                     const baseFallback = (opts.find(o => o.source === 'voyageVehicule.prix') || opts.find(o => o.source === 'voyage.prix') || opts.find(o => o.source === 'trajet.prix'));
                                                     const basePrice = baseFallback && baseFallback.price ? parseFloat(baseFallback.price) : 0;
 
-                                                    seats.forEach(function (seatNum) {
+                                                    seats.forEach(function(seatNum){
                                                         const seatElem = seatLayout.querySelector(".seat[data-seat='" + seatNum + "']");
                                                         const catId = (seatToCat && seatToCat[seatNum]) ? seatToCat[seatNum] : (seatElem && seatElem.dataset ? seatElem.dataset.cat : null);
                                                         const classId = seatElem ? getSeatClassId(seatElem) : null;
@@ -479,7 +459,7 @@
                                                     const classCatOpts = opts.filter(o => o.source && (o.source.indexOf('tarif_classe_categorie_trajet') !== -1 || o.source.indexOf('tarif_special_categorie') !== -1));
                                                     if (classCatOpts.length > 0) {
                                                         html += '<table class="table table-sm mb-2"><thead><tr><th>Classe / Catégorie</th><th>Montant</th></tr></thead><tbody>';
-                                                        classCatOpts.forEach(function (opt) {
+                                                        classCatOpts.forEach(function(opt){
                                                             const label = opt.label && opt.label.trim() !== '' ? opt.label : (opt.source || '');
                                                             html += '<tr><td>' + label + '</td><td>' + (opt.price || '') + '</td></tr>';
                                                         });
@@ -492,11 +472,11 @@
                                                     // Totaux par catégorie table
                                                     html += '<div class="mb-2"><strong>Totaux par catégorie</strong>';
                                                     html += '<table class="table table-sm"><tbody>';
-                                                    Object.keys(totalsByCategory).sort().forEach(function (cat) {
-                                                        html += '<tr><td>' + cat + '</td><td>' + (totalsByCategory[cat].toLocaleString('fr-FR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })) + '</td></tr>';
+                                                    Object.keys(totalsByCategory).sort().forEach(function(cat){
+                                                        html += '<tr><td>' + cat + '</td><td>' + (totalsByCategory[cat].toLocaleString('fr-FR', {minimumFractionDigits:2, maximumFractionDigits:2})) + '</td></tr>';
                                                         montantParCategorie[cat] = totalsByCategory[cat];
                                                     });
-                                                    html += '<tr class="table-active"><td><strong>Total</strong></td><td><strong>' + (grandTotal.toLocaleString('fr-FR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })) + '</strong></td></tr>';
+                                                    html += '<tr class="table-active"><td><strong>Total</strong></td><td><strong>' + (grandTotal.toLocaleString('fr-FR', {minimumFractionDigits:2, maximumFractionDigits:2})) + '</strong></td></tr>';
                                                     html += '</tbody></table></div>';
 
                                                     priceDisplay.innerHTML = html;
@@ -587,8 +567,6 @@
                                             e.target.style.cssText = selectedStyle;
                                         }
                                         selectedSeatsInput.value = Array.from(selected).join(',');
-                                        // keep the per-seat/category mapping in sync when selection changes
-                                        try { updateSelectedSeatsByCategoryInput(); } catch (e) { /* ignore */ }
                                         updateCounters();
                                         // update computed price when selection changes
                                         fetchPriceAndUpdate();
@@ -597,14 +575,14 @@
 
                                 // initialize seat visuals
                                 Array.from(seatLayout.querySelectorAll('.seat.available')).forEach(function (seatDiv) {
-                                    const seatNum = seatDiv.getAttribute('data-seat');
+                                        const seatNum = seatDiv.getAttribute('data-seat');
                                     const availableStyle = "background: linear-gradient(135deg, #dcfce7 0%, #bbf7d0 100%); border: 2px solid #86efac; color: #000;";
                                     const selectedStyle = "background: linear-gradient(135deg, #2563eb 0%, #1e40af 100%); border: 2px solid #93c5fd; color: #fff;";
-                                    if (selected.has(seatNum)) {
+                                        if (selected.has(seatNum)) {
                                         seatDiv.classList.add('selected');
                                         seatDiv.style.cssText = selectedStyle;
                                     } else if (seatToCat[seatNum]) {
-                                        seatDiv.style.cssText = getCategoryStyle(seatToCat[seatNum]);
+                                            seatDiv.style.cssText = getCategoryStyle(seatToCat[seatNum]);
                                     } else {
                                         seatDiv.style.cssText = availableStyle;
                                     }
@@ -623,13 +601,6 @@
 
                                 // initialize counters and mapping
                                 updateSelectedSeatsByCategoryInput();
-                                // ensure mapping is fresh just before submit
-                                const formEl = document.querySelector('form');
-                                if (formEl) {
-                                    formEl.addEventListener('submit', function () {
-                                        try { updateSelectedSeatsByCategoryInput(); } catch (e) { /* ignore */ }
-                                    });
-                                }
                                 updateCounters();
                                 // initial price fetch
                                 fetchPriceAndUpdate();
@@ -639,7 +610,7 @@
                                     const classColorMap = {};
                                     if (classLegend) {
                                         const style = document.createElement('style');
-                                        Array.from(classLegend.querySelectorAll('span')).forEach(function (span) {
+                                        Array.from(classLegend.querySelectorAll('span')).forEach(function(span){
                                             const id = span.getAttribute('data-class-id');
                                             const color = span.getAttribute('data-class-color');
                                             if (!id || !color) return;
@@ -779,7 +750,6 @@
                             .right-block {
                                 gap: 8px;
                             }
-
                             /* Center the overall seat layout container */
                             #seat-layout {
                                 display: flex;
@@ -791,7 +761,6 @@
                             .seat-legend {
                                 margin-top: 8px;
                             }
-
                             .seat-legend .legend-item {
                                 display: flex;
                                 align-items: center;
@@ -799,13 +768,13 @@
                                 font-size: 0.9rem;
                                 color: #333;
                             }
-
                             .seat-legend .legend-dot {
                                 width: 18px;
                                 height: 18px;
                                 border-radius: 6px;
                                 display: inline-block;
                             }
+                            
                         </style>
 
                         <div class="mb-3">
