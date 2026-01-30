@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" th:replace="~{backoffice/layout :: layout(~{::title}, ~{::main})}">
+<head>
+    <title>Liste des Produits</title>
+</head>
+<body>
+<main style="margin-left: 0; padding: 20px;">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2>Liste des Produits</h2>
+        <a th:href="@{/admin/produits/new}" class="btn btn-primary">
+            <i class="bi bi-plus-circle"></i> Nouveau Produit
+        </a>
+    </div>
+
+    <div th:if="${success}" class="alert alert-success alert-dismissible fade show" role="alert">
+        <span th:text="${success}"></span>
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+
+    <div class="card">
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-striped table-hover">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Nom</th>
+                            <th>Prix</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr th:each="produit : ${produits}">
+                            <td th:text="${produit.idProduit}"></td>
+                            <td th:text="${produit.nom}"></td>
+                            <td th:text="${#numbers.formatDecimal(produit.prix, 0, 'COMMA', 2, 'POINT')} + ' Ar'"></td>
+                            <td>
+                                <a th:href="@{/admin/produits/{id}/edit(id=${produit.idProduit})}" 
+                                   class="btn btn-sm btn-warning" title="Modifier">
+                                    <i class="bi bi-pencil"></i>
+                                </a>
+                                <a th:href="@{/admin/produits/{id}/historique(id=${produit.idProduit})}" 
+                                   class="btn btn-sm btn-info" title="Historique des prix">
+                                    <i class="bi bi-clock-history"></i>
+                                </a>
+                                <a th:href="@{/admin/produits/{id}/delete(id=${produit.idProduit})}" 
+                                   class="btn btn-sm btn-danger" 
+                                   onclick="return confirm('Êtes-vous sûr de vouloir supprimer ce produit ?')"
+                                   title="Supprimer">
+                                    <i class="bi bi-trash"></i>
+                                </a>
+                            </td>
+                        </tr>
+                        <tr th:if="${#lists.isEmpty(produits)}">
+                            <td colspan="4" class="text-center text-muted">Aucun produit trouvé</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</main>
+</body>
+</html>

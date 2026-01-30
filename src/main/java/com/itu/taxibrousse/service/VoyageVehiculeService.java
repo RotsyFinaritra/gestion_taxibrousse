@@ -41,4 +41,17 @@ public class VoyageVehiculeService {
     public List<VoyageVehicule> findByVehicule(Integer idVehicule) {
         return voyageVehiculeRepository.findByVehicule_IdVehicule(idVehicule);
     }
+
+    public List<VoyageVehicule> findWithFilters(Integer id, Integer voyageId, String dateDepartStr,
+                                                Integer vehiculeId, String immatriculation, String prixOrder) {
+        java.time.LocalDate dateDepart = null;
+        try {
+            if (dateDepartStr != null && !dateDepartStr.isEmpty()) {
+                dateDepart = java.time.LocalDate.parse(dateDepartStr);
+            }
+        } catch (Exception e) {
+            // ignore parse errors and treat as no filter
+        }
+        return voyageVehiculeRepository.findWithFilters(id, voyageId, dateDepart, vehiculeId, immatriculation, prixOrder);
+    }
 }

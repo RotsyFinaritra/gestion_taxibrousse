@@ -7,7 +7,7 @@ import org.springframework.stereotype.Repository;
 import java.util.List;
 
 @Repository
-public interface VoyageVehiculeRepository extends JpaRepository<VoyageVehicule, Integer> {
+public interface VoyageVehiculeRepository extends JpaRepository<VoyageVehicule, Integer>, VoyageVehiculeRepositoryCustom {
     List<VoyageVehicule> findByVoyage_IdVoyage(Integer idVoyage);
     List<VoyageVehicule> findByVehicule_IdVehicule(Integer idVehicule);
 }

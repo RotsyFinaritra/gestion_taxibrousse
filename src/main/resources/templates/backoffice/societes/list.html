@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" th:replace="~{backoffice/layout :: layout (~{::title}, ~{::content})}">
+<head>
+    <title>Gestion des Sociétés</title>
+</head>
+<body>
+    <th:block th:fragment="content">
+        <div class="container-fluid">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h1><i class="bi bi-building"></i> Sociétés Publicitaires</h1>
+                <a href="/admin/societes/new" class="btn btn-primary">
+                    <i class="bi bi-plus-circle"></i> Nouvelle Société
+                </a>
+            </div>
+
+            <!-- Messages d'alerte -->
+            <div th:if="${successMessage}" class="alert alert-success alert-dismissible fade show" role="alert">
+                <i class="bi bi-check-circle"></i> <span th:text="${successMessage}"></span>
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+            <div th:if="${errorMessage}" class="alert alert-danger alert-dismissible fade show" role="alert">
+                <i class="bi bi-exclamation-triangle"></i> <span th:text="${errorMessage}"></span>
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+
+            <div class="card">
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-striped table-hover">
+                            <thead class="table-dark">
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Nom</th>
+                                    <th>Contact</th>
+                                    <th>Email</th>
+                                    <th>Tarif/Diffusion</th>
+                                    <th>Date Création</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr th:if="${#lists.isEmpty(societes)}">
+                                    <td colspan="7" class="text-center text-muted">
+                                        <i class="bi bi-inbox"></i> Aucune société enregistrée
+                                    </td>
+                                </tr>
+                                <tr th:each="societe : ${societes}">
+                                    <td th:text="${societe.idSociete}"></td>
+                                    <td><strong th:text="${societe.nom}"></strong></td>
+                                    <td th:text="${societe.contact}"></td>
+                                    <td>
+                                        <a th:href="'mailto:' + ${societe.email}" th:text="${societe.email}"></a>
+                                    </td>
+                                    <td>
+                                        <span th:text="${#numbers.formatDecimal(societe.tarifParDiffusion, 1, 'COMMA', 2, 'POINT')}"></span> MGA
+                                    </td>
+                                    <td th:text="${#temporals.format(societe.dateCreation, 'dd/MM/yyyy')}"></td>
+                                    <td>
+                                        <div class="btn-group" role="group">
+                                            <a th:href="@{/admin/societes/{id}(id=${societe.idSociete})}" 
+                                               class="btn btn-sm btn-outline-info">
+                                                <i class="bi bi-eye"></i>
+                                            </a>
+                                            <a th:href="@{/admin/societes/{id}/edit(id=${societe.idSociete})}" 
+                                               class="btn btn-sm btn-outline-warning">
+                                                <i class="bi bi-pencil"></i>
+                                            </a>
+                                            <a th:href="@{/admin/societes/{id}/delete(id=${societe.idSociete})}" 
+                                               class="btn btn-sm btn-outline-danger"
+                                               onclick="return confirm('Êtes-vous sûr de vouloir supprimer cette société ?')">
+                                                <i class="bi bi-trash"></i>
+                                            </a>
+                                        </div>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </th:block>
+</body>
+</html>

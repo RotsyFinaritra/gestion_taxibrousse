@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{backoffice/layout :: layout (~{::title}, ~{::content})}">
+<head>
+    <title>Chiffre d'Affaires - Vidéos Publicitaires</title>
+</head>
+<body>
+    <th:block th:fragment="content">
+        <div class="container-fluid">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h1><i class="bi bi-tv"></i> Chiffre d'Affaires - Vidéos Publicitaires</h1>
+                <a href="/admin/reports/revenue" class="btn btn-secondary">
+                    <i class="bi bi-arrow-left"></i> Autres Rapports
+                </a>
+            </div>
+
+            <!-- Filtres -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5><i class="bi bi-funnel"></i> Filtres</h5>
+                </div>
+                <div class="card-body">
+                    <form id="filterForm" class="row g-3">
+                        <div class="col-md-3">
+                            <label for="mois" class="form-label">Mois *</label>
+                            <select id="mois" class="form-select" required>
+                                <option value="">-- Sélectionner un mois --</option>
+                                <option value="1">Janvier</option>
+                                <option value="2">Février</option>
+                                <option value="3">Mars</option>
+                                <option value="4">Avril</option>
+                                <option value="5">Mai</option>
+                                <option value="6">Juin</option>
+                                <option value="7">Juillet</option>
+                                <option value="8">Août</option>
+                                <option value="9">Septembre</option>
+                                <option value="10">Octobre</option>
+                                <option value="11">Novembre</option>
+                                <option value="12">Décembre</option>
+                            </select>
+                        </div>
+                        <div class="col-md-3">
+                            <label for="annee" class="form-label">Année *</label>
+                            <select id="annee" class="form-select" required>
+                                <option value="">-- Sélectionner une année --</option>
+                                <option value="2024">2024</option>
+                                <option value="2025">2025</option>
+                                <option value="2026" selected>2026</option>
+                                <option value="2027">2027</option>
+                                <option value="2028">2028</option>
+                            </select>
+                        </div>
+                        <div class="col-md-3 d-flex align-items-end">
+                            <button type="submit" class="btn btn-primary" id="calculerBtn">
+                                <i class="bi bi-search"></i> Calculer CA
+                            </button>
+                        </div>
+                        <div class="col-md-3 d-flex align-items-end">
+                            <button type="button" class="btn btn-outline-secondary" id="resetBtn">
+                                <i class="bi bi-arrow-clockwise"></i> Réinitialiser
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Zone de chargement -->
+            <div id="loadingArea" class="text-center d-none mb-4">
+                <div class="spinner-border text-primary" role="status">
+                    <span class="visually-hidden">Calcul en cours...</span>
+                </div>
+                <p class="mt-2 text-muted">Calcul du chiffre d'affaires en cours...</p>
+            </div>
+
+            <!-- Résultats -->
+            <div id="resultsArea" class="d-none">
+                <!-- Résumé principal -->
+                <div class="row mb-4">
+                    <div class="col-md-4">
+                        <div class="card text-white bg-success">
+                            <div class="card-header">
+                                <h6><i class="bi bi-currency-exchange"></i> CA Total</h6>
+                            </div>
+                            <div class="card-body">
+                                <h2 id="caTotal">0.00 MGA</h2>
+                                <p class="mb-0">Chiffre d'affaires total</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="card text-white bg-primary">
+                            <div class="card-header">
+                                <h6><i class="bi bi-broadcast"></i> Nombre de Diffusions</h6>
+                            </div>
+                            <div class="card-body">
+                                <h2 id="totalDiffusions">0</h2>
+                                <p class="mb-0">Total des diffusions vidéo</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="card text-white bg-info">
+                            <div class="card-header">
+                                <h6><i class="bi bi-file-earmark-text"></i> Enregistrements</h6>
+                            </div>
+                            <div class="card-body">
+                                <h2 id="nombreEnregistrements">0</h2>
+                                <p class="mb-0">Nombre d'enregistrements</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- CA par société -->
+                <div class="card">
+                    <div class="card-header">
+                        <h5><i class="bi bi-building"></i> CA par Société</h5>
+                    </div>
+                    <div class="card-body">
+                        <div id="societesContainer">
+                            <p class="text-muted text-center">Aucune donnée à afficher</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Zone d'erreur -->
+            <div id="errorArea" class="d-none">
+                <div class="alert alert-danger">
+                    <i class="bi bi-exclamation-triangle"></i>
+                    <strong>Erreur :</strong> <span id="errorMessage">Une erreur est survenue lors du calcul.</span>
+                </div>
+            </div>
+
+            <!-- Zone vide (aucun résultat) -->
+            <div id="emptyArea" class="d-none">
+                <div class="card">
+                    <div class="card-body text-center py-5">
+                        <i class="bi bi-broadcast-pin text-muted" style="font-size: 4rem;"></i>
+                        <h4 class="text-muted mt-3">Aucune diffusion trouvée</h4>
+                        <p class="text-muted">Il n'y a aucune diffusion publicitaire enregistrée pour la période sélectionnée.</p>
+                        <a href="/admin/diffusions-publicitaires/new" class="btn btn-outline-primary">
+                            <i class="bi bi-plus-circle"></i> Programmer une diffusion
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const form = document.getElementById('filterForm');
+            const calculerBtn = document.getElementById('calculerBtn');
+            const resetBtn = document.getElementById('resetBtn');
+            const loadingArea = document.getElementById('loadingArea');
+            const resultsArea = document.getElementById('resultsArea');
+            const errorArea = document.getElementById('errorArea');
+            const emptyArea = document.getElementById('emptyArea');
+
+            // Gestionnaire du formulaire
+            form.addEventListener('submit', function(e) {
+                e.preventDefault();
+                
+                const mois = document.getElementById('mois').value;
+                const annee = document.getElementById('annee').value;
+                
+                if (!mois || !annee) {
+                    alert('Veuillez sélectionner un mois et une année.');
+                    return;
+                }
+                
+                calculerCA(mois, annee);
+            });
+
+            // Bouton reset
+            resetBtn.addEventListener('click', function() {
+                form.reset();
+                document.getElementById('annee').value = '2026'; // Valeur par défaut
+                hideAllAreas();
+            });
+
+            function calculerCA(mois, annee) {
+                hideAllAreas();
+                loadingArea.classList.remove('d-none');
+                calculerBtn.disabled = true;
+
+                const url = `/admin/reports/advertising/compute?mois=${mois}&annee=${annee}`;
+                
+                fetch(url)
+                    .then(response => response.json())
+                    .then(data => {
+                        loadingArea.classList.add('d-none');
+                        calculerBtn.disabled = false;
+
+                        if (data.success) {
+                            if (data.totalDiffusions === 0) {
+                                emptyArea.classList.remove('d-none');
+                            } else {
+                                afficherResultats(data);
+                            }
+                        } else {
+                            afficherErreur(data.error || 'Erreur inconnue');
+                        }
+                    })
+                    .catch(error => {
+                        loadingArea.classList.add('d-none');
+                        calculerBtn.disabled = false;
+                        afficherErreur('Erreur de connexion : ' + error.message);
+                    });
+            }
+
+            function afficherResultats(data) {
+                // Mettre à jour les cartes de résumé
+                document.getElementById('caTotal').textContent = data.caTotal + ' MGA';
+                document.getElementById('totalDiffusions').textContent = data.totalDiffusions;
+                document.getElementById('nombreEnregistrements').textContent = data.nombreEnregistrements;
+
+                // Afficher le CA par société
+                const container = document.getElementById('societesContainer');
+                if (data.societes && data.societes.length > 0) {
+                    let html = '<div class="list-group">';
+                    
+                    data.societes.forEach(function(societe) {
+                        html += `
+                            <div class="list-group-item d-flex justify-content-between align-items-center">
+                                <div>
+                                    <h6 class="mb-1"><i class="bi bi-building"></i> ${societe.nom}</h6>
+                                    <small class="text-muted">${societe.diffusions} diffusion(s)</small>
+                                </div>
+                                <div class="text-end">
+                                    <span class="badge bg-success fs-6">${societe.ca} MGA</span>
+                                </div>
+                            </div>
+                        `;
+                    });
+                    
+                    html += '</div>';
+                    container.innerHTML = html;
+                } else {
+                    container.innerHTML = '<p class="text-muted text-center">Aucune société trouvée</p>';
+                }
+
+                resultsArea.classList.remove('d-none');
+            }
+
+            function afficherErreur(message) {
+                document.getElementById('errorMessage').textContent = message;
+                errorArea.classList.remove('d-none');
+            }
+
+            function hideAllAreas() {
+                loadingArea.classList.add('d-none');
+                resultsArea.classList.add('d-none');
+                errorArea.classList.add('d-none');
+                emptyArea.classList.add('d-none');
+            }
+        });
+        </script>
+    </th:block>
+</body>
+</html>

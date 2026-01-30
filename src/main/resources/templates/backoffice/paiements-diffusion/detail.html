@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" th:replace="~{backoffice/layout :: layout (~{::title}, ~{::content})}">
+<head>
+    <title>Détails du Paiement de Diffusion</title>
+</head>
+<body>
+    <th:block th:fragment="content">
+        <div class="container-fluid">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h1><i class="bi bi-eye"></i> Détails du Paiement #<span th:text="${paiement.idPaiementDiffusion}"></span></h1>
+                <div>
+                    <a href="/admin/paiements-diffusion" class="btn btn-secondary">
+                        <i class="bi bi-arrow-left"></i> Retour à la liste
+                    </a>
+                    <a th:href="@{/admin/paiements-diffusion/{id}/edit(id=${paiement.idPaiementDiffusion})}" class="btn btn-primary">
+                        <i class="bi bi-pencil"></i> Modifier
+                    </a>
+                </div>
+            </div>
+
+            <!-- Messages d'alerte -->
+            <div th:if="${success}" class="alert alert-success alert-dismissible fade show" role="alert">
+                <i class="bi bi-check-circle"></i> <span th:text="${success}"></span>
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+            <div th:if="${error}" class="alert alert-danger alert-dismissible fade show" role="alert">
+                <i class="bi bi-exclamation-triangle"></i> <span th:text="${error}"></span>
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+
+            <div class="row">
+                <!-- Informations générales du paiement -->
+                <div class="col-md-6">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5 class="card-title mb-0"><i class="bi bi-info-circle"></i> Informations Générales</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="row mb-3">
+                                <div class="col-sm-4 fw-bold">ID Paiement:</div>
+                                <div class="col-sm-8" th:text="${paiement.idPaiementDiffusion}"></div>
+                            </div>
+                            <div class="row mb-3">
+                                <div class="col-sm-4 fw-bold">Société:</div>
+                                <div class="col-sm-8" th:text="${paiement.diffusionPublicitaire != null and paiement.diffusionPublicitaire.societe != null ? paiement.diffusionPublicitaire.societe.nom : 'N/A'}"></div>
+                            </div>
+                            <div class="row mb-3">
+                                <div class="col-sm-4 fw-bold">Montant Total:</div>
+                                <div class="col-sm-8">
+                                    <span class="badge bg-success fs-6" th:text="${#numbers.formatDecimal(paiement.montant, 1, 'COMMA', 2, 'POINT')} + ' Ar'"></span>
+                                </div>
+                            </div>
+                            <div class="row mb-3">
+                                <div class="col-sm-4 fw-bold">Date:</div>
+                                <div class="col-sm-8" th:text="${#temporals.format(paiement.date, 'dd/MM/yyyy')}"></div>
+                            </div>
+                            <div class="row mb-3">
+                                <div class="col-sm-4 fw-bold">Mois/Année à payer:</div>
+                                <div class="col-sm-8" th:text="${paiement.moisAnneeAPayer != null ? #temporals.format(paiement.moisAnneeAPayer, 'MM/yyyy') : 'N/A'}"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Informations sur la diffusion publicitaire -->
+                <div class="col-md-6">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5 class="card-title mb-0"><i class="bi bi-broadcast"></i> Diffusion Publicitaire</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="row mb-3" th:if="${paiement.diffusionPublicitaire != null}">
+                                <div class="col-sm-4 fw-bold">ID Diffusion:</div>
+                                <div class="col-sm-8" th:text="${paiement.diffusionPublicitaire.idDiffusionPublicitaire}"></div>
+                            </div>
+                            <div class="row mb-3" th:if="${paiement.diffusionPublicitaire != null}">
+                                <div class="col-sm-4 fw-bold">Date Début:</div>
+                                <div class="col-sm-8" th:text="${paiement.diffusionPublicitaire.dateDebut != null ? #temporals.format(paiement.diffusionPublicitaire.dateDebut, 'dd/MM/yyyy') : 'N/A'}"></div>
+                            </div>
+                            <div class="row mb-3" th:if="${paiement.diffusionPublicitaire != null}">
+                                <div class="col-sm-4 fw-bold">Date Clôture:</div>
+                                <div class="col-sm-8" th:text="${paiement.diffusionPublicitaire.dateCloturage != null ? #temporals.format(paiement.diffusionPublicitaire.dateCloturage, 'dd/MM/yyyy') : 'N/A'}"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Détails des paiements par diffusion -->
+            <div class="row mt-4">
+                <div class="col-12">
+                    <div class="card">
+                        <div class="card-header d-flex justify-content-between align-items-center">
+                            <h5 class="card-title mb-0"><i class="bi bi-list-ul"></i> Détails par Diffusion</h5>
+                            <span class="badge bg-primary">
+                                Total: <span th:text="${#numbers.formatDecimal(totalDetails, 1, 'COMMA', 2, 'POINT')} + ' Ar'"></span>
+                            </span>
+                        </div>
+                        <div class="card-body">
+                            <div th:if="${paiementDetails != null and !paiementDetails.empty}" class="table-responsive">
+                                <table class="table table-hover">
+                                    <thead class="table-dark">
+                                        <tr>
+                                            <th>Voyage-Véhicule</th>
+                                            <th>Trajet</th>
+                                            <th>Date</th>
+                                            <th>Nb Diffusions</th>
+                                            <th>CA Estimé</th>
+                                            <th class="text-end">Montant Payé</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr th:each="detail : ${paiementDetails}">
+                                            <td>
+                                                <span th:if="${detail.diffusionDetails != null and detail.diffusionDetails.voyageVehicule != null}">
+                                                    #<span th:text="${detail.diffusionDetails.voyageVehicule.idVoyageVehicule}"></span>
+                                                    <br>
+                                                    <small class="text-muted" th:if="${detail.diffusionDetails.voyageVehicule.vehicule != null}" th:text="${detail.diffusionDetails.voyageVehicule.vehicule.immatriculation}"></small>
+                                                </span>
+                                                <span th:unless="${detail.diffusionDetails != null and detail.diffusionDetails.voyageVehicule != null}">N/A</span>
+                                            </td>
+                                            <td>
+                                                <span th:if="${detail.diffusionDetails != null and detail.diffusionDetails.voyageVehicule != null and detail.diffusionDetails.voyageVehicule.voyage != null and detail.diffusionDetails.voyageVehicule.voyage.trajet != null}">
+                                                    <span th:text="${detail.diffusionDetails.voyageVehicule.voyage.trajet.gareRoutiereDepart != null and detail.diffusionDetails.voyageVehicule.voyage.trajet.gareRoutiereDepart.ville != null ? detail.diffusionDetails.voyageVehicule.voyage.trajet.gareRoutiereDepart.ville.nom : 'N/A'}"></span>
+                                                    →
+                                                    <span th:text="${detail.diffusionDetails.voyageVehicule.voyage.trajet.gareRoutiereArrivee != null and detail.diffusionDetails.voyageVehicule.voyage.trajet.gareRoutiereArrivee.ville != null ? detail.diffusionDetails.voyageVehicule.voyage.trajet.gareRoutiereArrivee.ville.nom : 'N/A'}"></span>
+                                                </span>
+                                                <span th:unless="${detail.diffusionDetails != null and detail.diffusionDetails.voyageVehicule != null and detail.diffusionDetails.voyageVehicule.voyage != null and detail.diffusionDetails.voyageVehicule.voyage.trajet != null}">N/A</span>
+                                            </td>
+                                            <td th:text="${detail.date != null ? #temporals.format(detail.date, 'dd/MM/yyyy') : 'N/A'}"></td>
+                                            <td>
+                                                <span th:if="${detail.diffusionDetails != null}" th:text="${detail.diffusionDetails.nbDiffusion != null ? detail.diffusionDetails.nbDiffusion : 0}"></span>
+                                                <span th:unless="${detail.diffusionDetails != null}">0</span>
+                                            </td>
+                                            <td class="text-end">
+                                                <span th:if="${detail.diffusionDetails != null and detail.diffusionDetails.estimatedCa != null}" 
+                                                      class="badge bg-info fs-6" 
+                                                      th:text="${#numbers.formatDecimal(detail.diffusionDetails.estimatedCa, 1, 'COMMA', 2, 'POINT')} + ' Ar'"></span>
+                                                <span th:unless="${detail.diffusionDetails != null and detail.diffusionDetails.estimatedCa != null}" class="text-muted">0 Ar</span>
+                                            </td>
+                                            <td class="text-end">
+                                                <span class="badge bg-success fs-6" th:text="${#numbers.formatDecimal(detail.montant, 1, 'COMMA', 2, 'POINT')} + ' Ar'"></span>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                            <div th:if="${paiementDetails == null or paiementDetails.empty}" class="text-center py-4">
+                                <i class="bi bi-inbox display-1 text-muted"></i>
+                                <p class="text-muted mt-2">Aucun détail trouvé pour ce paiement</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </th:block>
+</body>
+</html>

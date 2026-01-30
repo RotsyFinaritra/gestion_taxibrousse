@@ -26,6 +26,41 @@
             
             <div class="card">
                 <div class="card-body">
+                    <form class="row g-2 mb-3" method="get">
+                        <div class="col-auto">
+                            <input type="number" name="id" class="form-control" placeholder="ID" th:value="${filterId}">
+                        </div>
+                        <div class="col-auto">
+                            <select name="voyageId" class="form-select">
+                                <option value="">Tous les voyages</option>
+                                <option th:each="v : ${voyages}" th:value="${v.idVoyage}" th:selected="${filterVoyageId != null and filterVoyageId == v.idVoyage}">
+                                    <span th:text="${v.idVoyage + ' - ' + #temporals.format(v.dateDepart, 'dd/MM/yyyy')}"></span>
+                                </option>
+                            </select>
+                        </div>
+                        <div class="col-auto">
+                            <input type="date" name="dateDepart" class="form-control" th:value="${filterDateDepart}">
+                        </div>
+                        <div class="col-auto">
+                            <select name="vehiculeId" class="form-select">
+                                <option value="">Tous les véhicules</option>
+                                <option th:each="vh : ${vehicules}" th:value="${vh.idVehicule}" th:text="${vh.marque + ' ' + vh.modele}" th:selected="${filterVehiculeId != null and filterVehiculeId == vh.idVehicule}"></option>
+                            </select>
+                        </div>
+                        <div class="col-auto">
+                            <input type="text" name="immatriculation" class="form-control" placeholder="Immatriculation" th:value="${filterImmatriculation}">
+                        </div>
+                        <div class="col-auto">
+                            <select name="prixOrder" class="form-select">
+                                <option value="">Tri prix</option>
+                                <option value="asc" th:selected="${filterPrixOrder == 'asc'}">Prix asc</option>
+                                <option value="desc" th:selected="${filterPrixOrder == 'desc'}">Prix desc</option>
+                            </select>
+                        </div>
+                        <div class="col-auto">
+                            <button class="btn btn-outline-primary">Filtrer</button>
+                        </div>
+                    </form>
                     <div class="table-responsive">
                         <table class="table table-hover">
                             <thead>

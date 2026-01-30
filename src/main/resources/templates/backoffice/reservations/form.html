@@ -136,7 +136,7 @@
                                                     idClasseCategorie: /*[[${cc.idClasseCategorie}]]*/0,
                                                     idClasse: /*[[${cc.classe.idClasse}]]*/0,
                                                     idCategorie: /*[[${cc.categorie.idCategorie}]]*/0
-                                                }/*[[${ccStat.last} ? '' : ',' ]]*/
+                                                }/*[# th:unless="${ccStat.last}"]*/, /*[/]*/
                                                 /*[/]*/
                                                 ];
                                                 /*]]>*/

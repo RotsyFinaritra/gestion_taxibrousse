@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" th:replace="~{backoffice/layout :: layout (~{::title}, ~{::content})}">
+<head>
+    <title>Rapport des Paiements par Société</title>
+</head>
+<body>
+    <th:block th:fragment="content">
+        <div class="container-fluid">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h1><i class="bi bi-graph-up"></i> Rapport des Paiements</h1>
+            </div>
+
+            <!-- Messages d'alerte -->
+            <div th:if="${error}" class="alert alert-danger alert-dismissible fade show" role="alert">
+                <i class="bi bi-exclamation-triangle"></i> <span th:text="${error}"></span>
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+
+            <!-- Sélection période -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="card-title mb-0"><i class="bi bi-calendar3"></i> Sélection de la période</h5>
+                </div>
+                <div class="card-body">
+                    <form method="get" class="row g-3">
+                        <div class="col-md-4">
+                            <label for="mois" class="form-label">Mois</label>
+                            <select class="form-select" id="mois" name="mois">
+                                <option th:each="i : ${#numbers.sequence(1, 12)}" 
+                                    th:value="${i}" 
+                                    th:text="${({'Janvier','Février','Mars','Avril','Mai','Juin','Juillet','Août','Septembre','Octobre','Novembre','Décembre'}[i-1])}"
+                                    th:selected="${i == moisSelectionne}"></option>
+                            </select>
+                        </div>
+                        <div class="col-md-4">
+                            <label for="annee" class="form-label">Année</label>
+                            <input type="number" class="form-control" id="annee" name="annee" 
+                                   th:value="${anneeSelectionnee}" min="2020" max="2030">
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label d-block">&nbsp;</label>
+                            <button type="submit" class="btn btn-primary w-100">
+                                <i class="bi bi-search"></i> Générer le rapport
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Résumé de la période -->
+            <div class="row mb-4">
+                <div class="col-md-12">
+                    <div class="card bg-primary text-white">
+                        <div class="card-body">
+                            <h4 class="card-title">
+                                <i class="bi bi-calendar-month"></i> 
+                                Rapport pour <span th:text="${nomMois}"></span> <span th:text="${anneeSelectionnee}"></span>
+                            </h4>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Résumé financier -->
+            <div class="row mb-4">
+                <div class="col-md-4">
+                    <div class="card text-center border-info">
+                        <div class="card-body">
+                            <h5 class="card-title text-info">Montant Total Dû</h5>
+                            <h3 class="text-info" th:text="${#numbers.formatDecimal(totalDu, 1, 'COMMA', 2, 'POINT')} + ' Ar'"></h3>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="card text-center border-success">
+                        <div class="card-body">
+                            <h5 class="card-title text-success">Montant Total Payé</h5>
+                            <h3 class="text-success" th:text="${#numbers.formatDecimal(totalPaye, 1, 'COMMA', 2, 'POINT')} + ' Ar'"></h3>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="card text-center border-warning">
+                        <div class="card-body">
+                            <h5 class="card-title text-warning">Montant Restant</h5>
+                            <h3 class="text-warning" th:text="${#numbers.formatDecimal(totalRestant, 1, 'COMMA', 2, 'POINT')} + ' Ar'"></h3>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tableau détaillé par société -->
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title mb-0"><i class="bi bi-table"></i> Détail par société</h5>
+                </div>
+                <div class="card-body">
+                    <div th:if="${rapport != null and !rapport.empty}" class="table-responsive">
+                        <table class="table table-hover" style="font-size: 1.1rem;">
+                            <thead class="table-dark" style="font-size: 1.15rem;">
+                                <tr>
+                                    <th>Société</th>
+                                    <th class="text-end">Montant Dû</th>
+                                    <th class="text-end">Montant Payé</th>
+                                    <th class="text-end">Montant Restant</th>
+                                    <th class="text-center">% Payé</th>
+                                    <th class="text-center">Statut</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr th:each="item : ${rapport}">
+                                    <td>
+                                        <strong th:text="${item.societe.nom}"></strong>
+                                        <br>
+                                        <small class="text-muted" th:text="'Tarif: ' + ${#numbers.formatDecimal(item.societe.tarifParDiffusion, 1, 'COMMA', 2, 'POINT')} + ' Ar/diffusion'"></small>
+                                    </td>
+                                    <td class="text-end" style="font-size: 1.2rem; font-weight: 600;">
+                                        <span class="badge bg-info fs-6" th:text="${#numbers.formatDecimal(item.montantDu, 1, 'COMMA', 2, 'POINT')} + ' Ar'"></span>
+                                    </td>
+                                    <td class="text-end" style="font-size: 1.2rem; font-weight: 600;">
+                                        <span class="badge bg-success fs-6" th:text="${#numbers.formatDecimal(item.montantPaye, 1, 'COMMA', 2, 'POINT')} + ' Ar'"></span>
+                                    </td>
+                                    <td class="text-end" style="font-size: 1.2rem; font-weight: 600;">
+                                        <span th:class="${item.montantRestant.doubleValue() > 0 ? 'badge bg-warning fs-6' : 'badge bg-secondary fs-6'}" 
+                                              th:text="${#numbers.formatDecimal(item.montantRestant, 1, 'COMMA', 2, 'POINT')} + ' Ar'"></span>
+                                    </td>
+                                    <td class="text-center">
+                                        <div class="progress" style="height: 20px;">
+                                            <div class="progress-bar" 
+                                                 role="progressbar" 
+                                                 th:style="'width: ' + ${item.pourcentagePaye} + '%'"
+                                                 th:text="${#numbers.formatDecimal(item.pourcentagePaye, 0, 1)} + '%'"></div>
+                                        </div>
+                                    </td>
+                                    <td class="text-center">
+                                        <span th:if="${item.montantRestant.doubleValue() <= 0}" class="badge bg-success">
+                                            <i class="bi bi-check-circle"></i> Soldé
+                                        </span>
+                                        <span th:if="${item.montantRestant.doubleValue() > 0 and item.pourcentagePaye >= 50}" class="badge bg-warning">
+                                            <i class="bi bi-exclamation-triangle"></i> Partiel
+                                        </span>
+                                        <span th:if="${item.montantRestant.doubleValue() > 0 and item.pourcentagePaye < 50}" class="badge bg-danger">
+                                            <i class="bi bi-x-circle"></i> En retard
+                                        </span>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div th:if="${rapport == null or rapport.empty}" class="text-center py-4">
+                        <i class="bi bi-inbox display-1 text-muted"></i>
+                        <p class="text-muted mt-2">Aucune donnée trouvée pour cette période</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Actions rapides -->
+            <div class="d-flex justify-content-end gap-2 mt-4">
+                <a href="/admin/paiements-diffusion/new" class="btn btn-success">
+                    <i class="bi bi-plus-circle"></i> Nouveau Paiement
+                </a>
+                <a href="/admin/paiements-diffusion" class="btn btn-outline-primary">
+                    <i class="bi bi-list"></i> Voir tous les paiements
+                </a>
+            </div>
+        </div>
+    </th:block>
+</body>
+</html>

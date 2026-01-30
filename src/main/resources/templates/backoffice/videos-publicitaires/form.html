@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" th:replace="~{backoffice/layout :: layout (~{::title}, ~{::content})}">
+<head>
+    <title>Vidéo Publicitaire - Formulaire</title>
+</head>
+<body>
+    <th:block th:fragment="content">
+        <div class="container-fluid">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h1>
+                    <i class="bi bi-camera-video"></i>
+                    <span th:if="${video.idVideoPublicitaire == null}">Nouvelle Vidéo Publicitaire</span>
+                    <span th:if="${video.idVideoPublicitaire != null}">Modifier Vidéo Publicitaire</span>
+                </h1>
+                <a href="/admin/videos-publicitaires" class="btn btn-secondary">
+                    <i class="bi bi-arrow-left"></i> Retour
+                </a>
+            </div>
+
+            <div class="card">
+                <div class="card-body">
+                    <form th:action="${video.idVideoPublicitaire == null ? '/admin/videos-publicitaires/save' : '/admin/videos-publicitaires/update'}" 
+                          th:object="${video}" method="post">
+                        
+                        <input type="hidden" th:field="*{idVideoPublicitaire}" th:if="${video.idVideoPublicitaire != null}">
+                        
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="titre" class="form-label">Titre de la Vidéo *</label>
+                                <input type="text" class="form-control" id="titre" th:field="*{titre}" required maxlength="50">
+                            </div>
+                            
+                            <div class="col-md-6 mb-3">
+                                <label for="societe" class="form-label">Société *</label>
+                                <select class="form-select" id="societe" th:field="*{societe.idSociete}" required>
+                                    <option value="">-- Sélectionner une société --</option>
+                                    <option th:each="societe : ${societes}" 
+                                            th:value="${societe.idSociete}" 
+                                            th:text="${societe.nom}">
+                                    </option>
+                                </select>
+                            </div>
+                        </div>
+                        
+                        <div class="row">
+                            <div class="col-md-8 mb-3">
+                                <label for="urlFichier" class="form-label">
+                                    URL du Fichier Vidéo 
+                                    <span class="text-muted">(optionnel)</span>
+                                </label>
+                                <input type="url" class="form-control" id="urlFichier" th:field="*{urlFichier}" 
+                                       maxlength="50" placeholder="https://example.com/video.mp4">
+                                <small class="form-text text-muted">URL complète vers le fichier vidéo (peut être ajoutée plus tard)</small>
+                            </div>
+                            
+                            <div class="col-md-4 mb-3">
+                                <label for="dateAjout" class="form-label">Date d'Ajout</label>
+                                <input type="date" class="form-control" id="dateAjout" th:field="*{dateAjout}">
+                                <small class="form-text text-muted">Laissez vide pour la date actuelle</small>
+                            </div>
+                        </div>
+                        
+                        <div class="d-flex justify-content-end gap-2">
+                            <a href="/admin/videos-publicitaires" class="btn btn-secondary">
+                                <i class="bi bi-x-circle"></i> Annuler
+                            </a>
+                            <button type="submit" class="btn btn-success">
+                                <i class="bi bi-check-circle"></i>
+                                <span th:if="${video.idVideoPublicitaire == null}">Créer</span>
+                                <span th:if="${video.idVideoPublicitaire != null}">Mettre à jour</span>
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </th:block>
+</body>
+</html>

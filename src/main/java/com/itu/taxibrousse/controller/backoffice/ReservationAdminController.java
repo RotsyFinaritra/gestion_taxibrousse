@@ -20,6 +20,7 @@ import org.slf4j.LoggerFactory;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeParseException;
+import java.util.List;
 
 @Controller
 @RequestMapping("/admin/reservations")
@@ -57,8 +58,38 @@ public class ReservationAdminController {
     }
     
     @GetMapping
-    public String list(Model model) {
-        model.addAttribute("reservations", reservationService.findAll());
+    public String list(@RequestParam(value = "id", required = false) Integer id,
+                      @RequestParam(value = "dateDebut", required = false) String dateDebut,
+                      @RequestParam(value = "dateFin", required = false) String dateFin,
+                      @RequestParam(value = "etat", required = false) Integer etat,
+                      @RequestParam(value = "voyageId", required = false) Integer voyageId,
+                      @RequestParam(value = "vehiculeId", required = false) Integer vehiculeId,
+                      @RequestParam(value = "clientId", required = false) Integer clientId,
+                      Model model) {
+        
+        List<Reservation> reservations;
+        
+        // Appliquer les filtres si des paramètres sont fournis
+        if (id != null || dateDebut != null || dateFin != null || etat != null || 
+            voyageId != null || vehiculeId != null || clientId != null) {
+            reservations = reservationService.findWithFilters(id, dateDebut, dateFin, etat, voyageId, vehiculeId, clientId);
+        } else {
+            reservations = reservationService.findAll();
+        }
+        
+        model.addAttribute("reservations", reservations);
+        model.addAttribute("clients", clientService.findAll());
+        model.addAttribute("voyagesVehicules", voyageVehiculeService.findAll());
+        
+        // Conserver les valeurs de filtrage pour les afficher dans le form
+        model.addAttribute("filtreId", id);
+        model.addAttribute("filtreDateDebut", dateDebut);
+        model.addAttribute("filtreDateFin", dateFin);
+        model.addAttribute("filtreEtat", etat);
+        model.addAttribute("filtreVoyageId", voyageId);
+        model.addAttribute("filtreVehiculeId", vehiculeId);
+        model.addAttribute("filtreClientId", clientId);
+        
         return "backoffice/reservations/list";
     }
     
@@ -279,6 +310,16 @@ public class ReservationAdminController {
                 try {
                     com.fasterxml.jackson.databind.ObjectMapper mapper = new com.fasterxml.jackson.databind.ObjectMapper();
                     java.util.Map<String, Object> parsed = mapper.readValue(selectedSeatsByClasseCategorie, java.util.Map.class);
+                    
+                    // Load full VoyageVehicule with voyage/trajet/prix for accurate price computation
+                    com.itu.taxibrousse.entity.VoyageVehicule fullVV = null;
+                    if (saved.getVoyageVehicule() != null && saved.getVoyageVehicule().getIdVoyageVehicule() != null) {
+                        fullVV = voyageVehiculeService.findById(saved.getVoyageVehicule().getIdVoyageVehicule())
+                                .orElse(saved.getVoyageVehicule());
+                    } else {
+                        fullVV = saved.getVoyageVehicule();
+                    }
+                    
                     for (java.util.Map.Entry<String, Object> e : parsed.entrySet()) {
                         try {
                             Integer seatNum = Integer.valueOf(e.getKey());
@@ -291,18 +332,23 @@ public class ReservationAdminController {
                             rd.setNumPlace(seatNum);
                             com.itu.taxibrousse.entity.ClasseCategorie chosenCC = null;
                             if (idClasseCategorie != null) chosenCC = classeCategorieService.findById(idClasseCategorie).orElse(null);
-                            // If possible, use montant from montantParCategorie for the category label
+                            
+                            // Compute montant using the same pricing logic as details view page
+                            // Pass ClasseCategorie.Categorie to enable tarif_special_categorie if available
                             Double montant = null;
-                            if (chosenCC != null && chosenCC.getCategorie() != null && montantParCategorieMap != null) {
-                                String catLabel = chosenCC.getCategorie().getLibelle();
-                                if (catLabel != null && montantParCategorieMap.containsKey(catLabel)) {
-                                    try { montant = Double.valueOf(String.valueOf(montantParCategorieMap.get(catLabel))); } catch (Exception ignore) {}
+                            try {
+                                com.itu.taxibrousse.service.ReservationService.PriceResult pr = 
+                                    reservationService.computePriceForSeatWithSource(chosenCC, 
+                                        (chosenCC != null ? chosenCC.getCategorie() : null), fullVV);
+                                if (pr != null && pr.price != null) {
+                                    montant = pr.price.doubleValue();
+                                    System.out.println("Computed price for seat " + seatNum + " (ClasseCategorie=" + idClasseCategorie + 
+                                                     ") source=" + pr.source + " price=" + pr.price);
                                 }
+                            } catch (Exception ex) {
+                                logger.warn("Could not compute price for seat {}: {}", seatNum, ex.getMessage());
                             }
-                            if (montant == null) {
-                                java.math.BigDecimal price = reservationService.computePriceForSeat(chosenCC, null, saved.getVoyageVehicule());
-                                montant = price != null ? price.doubleValue() : null;
-                            }
+                            
                             rd.setMontant(montant);
                             rd.setEtat(1);
                             rd.setReservation(saved);
@@ -477,6 +523,30 @@ public class ReservationAdminController {
                     } catch (NumberFormatException ex) {
                         // ignore invalid seat value
                     }
+                }
+            }
+
+            // Si aucun détail n'a été créé mais qu'on a un nombrePlace > 0, créer des détails par défaut
+            java.util.List<com.itu.taxibrousse.entity.ReservationDetails> existingDetails = 
+                reservationDetailsService.findByReservation(saved.getIdReservation());
+            
+            if (existingDetails.isEmpty() && saved.getNombrePlace() != null && saved.getNombrePlace() > 0) {
+                logger.info("Aucun détail trouvé pour la réservation {}, création automatique de {} détails", 
+                           saved.getIdReservation(), saved.getNombrePlace());
+                
+                // Créer des détails génériques sans assignation de siège spécifique
+                for (int i = 0; i < saved.getNombrePlace(); i++) {
+                    com.itu.taxibrousse.entity.ReservationDetails rd = new com.itu.taxibrousse.entity.ReservationDetails();
+                    rd.setReservation(saved);
+                    rd.setEtat(1); // état confirmé
+                    // Pas de numPlace assigné (siège libre)
+                    rd.setNumPlace(null);
+                    
+                    // Calculer le prix avec ClasseCategorie null (utilise le tarif de base)
+                    java.math.BigDecimal price = reservationService.computePriceForSeat(null, null, saved.getVoyageVehicule());
+                    rd.setMontant(price != null ? price.doubleValue() : null);
+                    
+                    reservationDetailsService.save(rd);
                 }
             }
 

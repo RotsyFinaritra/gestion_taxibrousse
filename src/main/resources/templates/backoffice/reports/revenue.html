@@ -6,6 +6,47 @@
 </head>
 <body>
     <th:block th:fragment="content">
+        <style>
+            /* Increase form control and label sizes for readability */
+            #voyageSelect, #vvSelect {
+                font-size: 1.05rem;
+                padding: .5rem .6rem;
+            }
+            label[for="voyageSelect"], label[for="vvSelect"] {
+                font-size: 1.05rem;
+                font-weight: 600;
+                margin-top: .5rem;
+                display: inline-block;
+            }
+            #computeBtn {
+                font-size: 1.05rem;
+                padding: .55rem 1rem;
+            }
+
+            /* Result block styling */
+            #result {
+                margin-top: 1rem;
+                background: #f8f9fa;
+                padding: 1rem;
+                border-radius: .5rem;
+                box-shadow: 0 1px 2px rgba(0,0,0,0.04);
+            }
+            #result strong { display: inline-block; width: 160px; }
+            #total {
+                font-size: 1.4rem;
+                font-weight: 700;
+                color: #0d6efd; /* bootstrap primary */
+            }
+            #count {
+                font-size: 1.1rem;
+                font-weight: 600;
+            }
+
+            /* Responsive: keep controls stacked on small screens */
+            @media (min-width: 768px) {
+                #voyageSelect, #vvSelect { width: 50%; }
+            }
+        </style>
         <div class="container-fluid">
             <div class="d-flex justify-content-between align-items-center mb-4">
                 <h1>Chiffre d'affaires</h1>

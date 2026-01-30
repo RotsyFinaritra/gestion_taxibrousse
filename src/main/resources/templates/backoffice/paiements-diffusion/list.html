@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" th:replace="~{backoffice/layout :: layout (~{::title}, ~{::content})}">
+<head>
+    <title>Gestion des Paiements de Diffusion</title>
+</head>
+<body>
+    <th:block th:fragment="content">
+        <div class="container-fluid">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h1><i class="bi bi-credit-card"></i> Paiements de Diffusion</h1>
+                <a href="/admin/paiements-diffusion/new" class="btn btn-primary">
+                    <i class="bi bi-plus-circle"></i> Nouveau Paiement
+                </a>
+            </div>
+
+            <!-- Messages d'alerte -->
+            <div th:if="${success}" class="alert alert-success alert-dismissible fade show" role="alert">
+                <i class="bi bi-check-circle"></i> <span th:text="${success}"></span>
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+            <div th:if="${error}" class="alert alert-danger alert-dismissible fade show" role="alert">
+                <i class="bi bi-exclamation-triangle"></i> <span th:text="${error}"></span>
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+
+            <!-- Filtres -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="card-title mb-0"><i class="bi bi-funnel"></i> Filtres</h5>
+                </div>
+                <div class="card-body">
+                    <form method="get" class="row g-3">
+                        <div class="col-md-4">
+                            <label for="societeId" class="form-label">Société</label>
+                            <select class="form-select" id="societeId" name="societeId">
+                                <option value="">Toutes les sociétés</option>
+                                <option th:each="societe : ${societes}" 
+                                        th:value="${societe.idSociete}" 
+                                        th:text="${societe.nom}"
+                                        th:selected="${selectedSocieteId != null and selectedSocieteId == societe.idSociete}"></option>
+                            </select>
+                        </div>
+                        <div class="col-md-3">
+                            <label for="dateDebut" class="form-label">Date début</label>
+                            <input type="date" class="form-control" id="dateDebut" name="dateDebut" th:value="${dateDebut}">
+                        </div>
+                        <div class="col-md-3">
+                            <label for="dateFin" class="form-label">Date fin</label>
+                            <input type="date" class="form-control" id="dateFin" name="dateFin" th:value="${dateFin}">
+                        </div>
+                        <div class="col-md-2">
+                            <label class="form-label d-block">&nbsp;</label>
+                            <button type="submit" class="btn btn-outline-primary w-100">
+                                <i class="bi bi-search"></i> Filtrer
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Tableau des paiements -->
+            <div class="card">
+                <div class="card-body">
+                    <div th:if="${paiements != null and !paiements.empty}" class="table-responsive">
+                        <table class="table table-hover" style="font-size:1.05rem;">
+                            <thead class="table-dark" style="font-size:1.1rem;">
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Société</th>
+                                    <th>Montant</th>
+                                    <th>Date</th>
+                                    <th>Mois/Année à payer</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr th:each="paiement : ${paiements}">
+                                    <td th:text="${paiement.idPaiementDiffusion}"></td>
+                                    <td th:text="${paiement.diffusionPublicitaire != null and paiement.diffusionPublicitaire.societe != null ? paiement.diffusionPublicitaire.societe.nom : 'N/A'}"></td>
+                                    <td class="text-end" style="font-size:1.15rem; font-weight:600;">
+                                        <span class="badge bg-success fs-6" th:text="${#numbers.formatDecimal(paiement.montant, 1, 'COMMA', 2, 'POINT')} + ' Ar'"></span>
+                                    </td>
+                                    <td style="font-size:1.05rem;" th:text="${#temporals.format(paiement.date, 'dd/MM/yyyy')}"></td>
+                                    <td style="font-size:1.05rem;" th:text="${paiement.moisAnneeAPayer != null ? #temporals.format(paiement.moisAnneeAPayer, 'MM/yyyy') : 'N/A'}"></td>
+                                    <td>
+                                        <div class="btn-group" role="group">
+                                            <a th:href="@{/admin/paiements-diffusion/{id}(id=${paiement.idPaiementDiffusion})}" 
+                                               class="btn btn-outline-info btn-sm" title="Voir détails">
+                                                <i class="bi bi-eye"></i>
+                                            </a>
+                                            <a th:href="@{/admin/paiements-diffusion/{id}/edit(id=${paiement.idPaiementDiffusion})}" 
+                                               class="btn btn-outline-primary btn-sm" title="Modifier">
+                                                <i class="bi bi-pencil"></i>
+                                            </a>
+                                            <form th:action="@{/admin/paiements-diffusion/{id}/delete(id=${paiement.idPaiementDiffusion})}" 
+                                                  method="post" class="d-inline"
+                                                  onsubmit="return confirm('Êtes-vous sûr de vouloir supprimer ce paiement ?')">
+                                                <button type="submit" class="btn btn-outline-danger btn-sm" title="Supprimer">
+                                                    <i class="bi bi-trash"></i>
+                                                </button>
+                                            </form>
+                                        </div>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div th:if="${paiementsPage != null}">
+                        <nav th:if="${totalPages > 1}" aria-label="Pagination">
+                            <ul class="pagination justify-content-center mt-3">
+                                <li class="page-item" th:classappend="${currentPage == 0} ? ' disabled'">
+                                    <a class="page-link" th:href="@{/admin/paiements-diffusion(societeId=${selectedSocieteId},dateDebut=${dateDebut},dateFin=${dateFin},page=${currentPage-1},size=${pageSize})}">Préc</a>
+                                </li>
+                                <li class="page-item" th:each="i : ${#numbers.sequence(0, totalPages-1)}"
+                                    th:classappend="${i == currentPage} ? ' active'">
+                                    <a class="page-link" th:text="${i + 1}"
+                                       th:href="@{/admin/paiements-diffusion(societeId=${selectedSocieteId},dateDebut=${dateDebut},dateFin=${dateFin},page=${i},size=${pageSize})}"></a>
+                                </li>
+                                <li class="page-item" th:classappend="${currentPage >= totalPages-1} ? ' disabled'">
+                                    <a class="page-link" th:href="@{/admin/paiements-diffusion(societeId=${selectedSocieteId},dateDebut=${dateDebut},dateFin=${dateFin},page=${currentPage+1},size=${pageSize})}">Suiv</a>
+                                </li>
+                            </ul>
+                        </nav>
+                    </div>
+                    <div th:if="${paiements == null or paiements.empty}" class="text-center py-4">
+                        <i class="bi bi-inbox display-1 text-muted"></i>
+                        <p class="text-muted mt-2">Aucun paiement trouvé</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </th:block>
+</body>
+</html>

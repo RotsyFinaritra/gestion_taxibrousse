@@ -7,6 +7,53 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
     <link rel="stylesheet" th:href="@{/css/backoffice/admin.css}">
+    <style>
+        .sidebar .nav-link {
+            padding: 8px 16px;
+            border-radius: 4px;
+            color: #495057;
+            text-decoration: none;
+            transition: all 0.2s;
+        }
+        
+        .sidebar .nav-link:hover {
+            background-color: rgba(0,123,255,0.1);
+            color: #007bff;
+        }
+        
+        .sidebar .nav-link.active {
+            background-color: #007bff;
+            color: white;
+        }
+        
+        .sidebar .nav-link[data-bs-toggle="collapse"] {
+            font-weight: 500;
+            padding: 10px 16px;
+        }
+        
+        .sidebar .nav-link[data-bs-toggle="collapse"]:not(.collapsed) {
+            background-color: rgba(0,123,255,0.1);
+            color: #007bff;
+        }
+        
+        .sidebar .nav-link[data-bs-toggle="collapse"] .bi-chevron-down {
+            transition: transform 0.2s;
+        }
+        
+        .sidebar .nav-link[data-bs-toggle="collapse"]:not(.collapsed) .bi-chevron-down {
+            transform: rotate(180deg);
+        }
+        
+        .sidebar .collapse .nav-link {
+            font-size: 0.9em;
+            padding: 6px 12px;
+            border-left: 2px solid transparent;
+        }
+        
+        .sidebar .collapse .nav-link:hover {
+            border-left-color: #007bff;
+        }
+    </style>
 </head>
 <body>
     <!-- Navigation -->
@@ -47,90 +94,232 @@
                                 <i class="bi bi-speedometer2"></i> Dashboard
                             </a>
                         </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="/admin/villes">
-                                <i class="bi bi-geo-alt"></i> Villes
+
+                        <!-- Section Configuration de Base -->
+                        <li class="nav-item mt-2">
+                            <a class="nav-link collapsed" href="#configurationMenu" data-bs-toggle="collapse" role="button">
+                                <i class="bi bi-gear"></i> Configuration
+                                <i class="bi bi-chevron-down ms-auto"></i>
                             </a>
+                            <div class="collapse" id="configurationMenu">
+                                <ul class="nav flex-column ms-3">
+                                    <li class="nav-item">
+                                        <a class="nav-link" href="/admin/villes">
+                                            <i class="bi bi-geo-alt"></i> Villes
+                                        </a>
+                                    </li>
+                                    <li class="nav-item">
+                                        <a class="nav-link" href="/admin/gares">
+                                            <i class="bi bi-building"></i> Gares Routières
+                                        </a>
+                                    </li>
+                                    <li class="nav-item">
+                                        <a class="nav-link" href="/admin/classes">
+                                            <i class="bi bi-list-ol"></i> Classes
+                                        </a>
+                                    </li>
+                                    <li class="nav-item">
+                                        <a class="nav-link" href="/admin/categories">
+                                            <i class="bi bi-tags"></i> Catégories
+                                        </a>
+                                    </li>
+                                    <li class="nav-item">
+                                        <a class="nav-link" href="/admin/classecategories">
+                                            <i class="bi bi-link-45deg"></i> Classe-Catégorie
+                                        </a>
+                                    </li>
+                                    <li class="nav-item">
+                                        <a class="nav-link" href="/admin/vehicules">
+                                            <i class="bi bi-truck"></i> Véhicules
+                                        </a>
+                                    </li>
+                                </ul>
+                            </div>
                         </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="/admin/gares">
-                                <i class="bi bi-building"></i> Gares Routières
+
+                        <!-- Section Trajets & Voyages -->
+                        <li class="nav-item mt-2">
+                            <a class="nav-link collapsed" href="#trajetsMenu" data-bs-toggle="collapse" role="button">
+                                <i class="bi bi-signpost"></i> Trajets & Voyages
+                                <i class="bi bi-chevron-down ms-auto"></i>
                             </a>
+                            <div class="collapse" id="trajetsMenu">
+                                <ul class="nav flex-column ms-3">
+                                    <li class="nav-item">
+                                        <a class="nav-link" href="/admin/trajets">
+                                            <i class="bi bi-signpost"></i> Trajets
+                                        </a>
+                                    </li>
+                                    <li class="nav-item">
+                                        <a class="nav-link" href="/admin/heures">
+                                            <i class="bi bi-clock"></i> Heures de Départ
+                                        </a>
+                                    </li>
+                                    <li class="nav-item">
+                                        <a class="nav-link" href="/admin/voyages">
+                                            <i class="bi bi-calendar-event"></i> Voyages
+                                        </a>
+                                    </li>
+                                    <li class="nav-item">
+                                        <a class="nav-link" href="/admin/voyage-vehicules">
+                                            <i class="bi bi-truck-front-fill"></i> Voyage-Véhicules
+                                        </a>
+                                    </li>
+                                </ul>
+                            </div>
                         </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="/admin/classes">
-                                <i class="bi bi-list-ol"></i> Classes
+
+                        <!-- Section Tarification -->
+                        <li class="nav-item mt-2">
+                            <a class="nav-link collapsed" href="#tarifMenu" data-bs-toggle="collapse" role="button">
+                                <i class="bi bi-cash-coin"></i> Tarification
+                                <i class="bi bi-chevron-down ms-auto"></i>
                             </a>
+                            <div class="collapse" id="tarifMenu">
+                                <ul class="nav flex-column ms-3">
+                                    <li class="nav-item">
+                                        <a class="nav-link" href="/admin/classe-siege-vehicule">
+                                            <i class="bi bi-grid-3x3-gap-fill"></i> Sièges → Classe
+                                        </a>
+                                    </li>
+                                    <li class="nav-item">
+                                        <a class="nav-link" href="/admin/tarif-classe-trajet">
+                                            <i class="bi bi-cash-stack"></i> Tarifs Classe-Trajet
+                                        </a>
+                                    </li>
+                                    <li class="nav-item">
+                                        <a class="nav-link" href="/admin/tarif-classe-categorie-trajet">
+                                            <i class="bi bi-cash-coin"></i> Tarifs Classe-Catégorie
+                                        </a>
+                                    </li>
+                                    <li class="nav-item">
+                                        <a class="nav-link" href="/admin/tarif-special-categorie">
+                                            <i class="bi bi-percent"></i> Tarifs Spéciaux Catégorie
+                                        </a>
+                                    </li>
+                                </ul>
+                            </div>
                         </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="/admin/categories">
-                                <i class="bi bi-tags"></i> Catégories
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="/admin/classecategories">
-                                <i class="bi bi-link-45deg"></i> Classe-Catégorie
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="/admin/trajets">
-                                <i class="bi bi-signpost"></i> Trajets
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="/admin/heures">
-                                <i class="bi bi-clock"></i> Heures de Départ
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="/admin/vehicules">
-                                <i class="bi bi-truck"></i> Véhicules
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="/admin/voyages">
-                                <i class="bi bi-calendar-event"></i> Voyages
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="/admin/voyage-vehicules">
-                                <i class="bi bi-truck-front-fill"></i> Voyage-Véhicules
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="/admin/reports/revenue">
-                                <i class="bi bi-wallet2"></i> Chiffre d'affaires
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="/admin/classe-siege-vehicule">
-                                <i class="bi bi-grid-3x3-gap-fill"></i> Sièges → Classe
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="/admin/tarif-classe-trajet">
-                                <i class="bi bi-cash-stack"></i> Tarifs Classe-Trajet
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="/admin/tarif-classe-categorie-trajet">
-                                <i class="bi bi-cash-coin"></i> Tarifs Classe-Catégorie
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="/admin/tarif-special-categorie">
-                                <i class="bi bi-percent"></i> Tarifs Spéciaux Catégorie
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="/admin/reservations">
+
+                        <!-- Section Réservations -->
+                        <li class="nav-item mt-2">
+                            <a class="nav-link collapsed" href="#reservationMenu" data-bs-toggle="collapse" role="button">
                                 <i class="bi bi-bookmark-check"></i> Réservations
+                                <i class="bi bi-chevron-down ms-auto"></i>
                             </a>
+                            <div class="collapse" id="reservationMenu">
+                                <ul class="nav flex-column ms-3">
+                                    <li class="nav-item">
+                                        <a class="nav-link" href="/admin/clients">
+                                            <i class="bi bi-people"></i> Clients
+                                        </a>
+                                    </li>
+                                    <li class="nav-item">
+                                        <a class="nav-link" href="/admin/reservations">
+                                            <i class="bi bi-bookmark-check"></i> Réservations
+                                        </a>
+                                    </li>
+                                </ul>
+                            </div>
                         </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="/admin/clients">
-                                <i class="bi bi-people"></i> Clients
+
+                        <!-- Section Ventes & Produits -->
+                        <li class="nav-item mt-2">
+                            <a class="nav-link collapsed" href="#venteMenu" data-bs-toggle="collapse" role="button">
+                                <i class="bi bi-basket"></i> Ventes & Produits
+                                <i class="bi bi-chevron-down ms-auto"></i>
                             </a>
+                            <div class="collapse" id="venteMenu">
+                                <ul class="nav flex-column ms-3">
+                                    <li class="nav-item">
+                                        <a class="nav-link" href="/admin/produits">
+                                            <i class="bi bi-box-seam"></i> Produits
+                                        </a>
+                                    </li>
+                                    <li class="nav-item">
+                                        <a class="nav-link" href="/admin/vente-produits">
+                                            <i class="bi bi-cart-check"></i> Ventes de Produits
+                                        </a>
+                                    </li>
+                                </ul>
+                            </div>
+                        </li>
+
+                        <!-- Section Publicité -->
+                        <li class="nav-item mt-2">
+                            <a class="nav-link collapsed" href="#publiciteMenu" data-bs-toggle="collapse" role="button">
+                                <i class="bi bi-tv"></i> Publicité
+                                <i class="bi bi-chevron-down ms-auto"></i>
+                            </a>
+                            <div class="collapse" id="publiciteMenu">
+                                <ul class="nav flex-column ms-3">
+                                    <li class="nav-item">
+                                        <a class="nav-link" href="/admin/societes">
+                                            <i class="bi bi-building"></i> Sociétés Publicitaires
+                                        </a>
+                                    </li>
+                                    <li class="nav-item">
+                                        <a class="nav-link" href="/admin/videos-publicitaires">
+                                            <i class="bi bi-camera-video"></i> Vidéos Publicitaires
+                                        </a>
+                                    </li>
+                                    <li class="nav-item">
+                                        <a class="nav-link" href="/admin/diffusions-publicitaires">
+                                            <i class="bi bi-broadcast"></i> Diffusions Publicitaires
+                                        </a>
+                                    </li>
+                                    <li class="nav-item">
+                                        <a class="nav-link" href="/admin/paiements-diffusion">
+                                            <i class="bi bi-credit-card"></i> Paiements de Diffusion
+                                        </a>
+                                    </li>
+                                    <li class="nav-item">
+                                        <a class="nav-link" href="/admin/historique-tarif-diffusion">
+                                            <i class="bi bi-clock-history"></i> Historique Tarifs Diffusion
+                                        </a>
+                                    </li>
+                                </ul>
+                            </div>
+                        </li>
+
+                        <!-- Section Rapports & Statistiques -->
+                        <li class="nav-item mt-2">
+                            <a class="nav-link collapsed" href="#rapportMenu" data-bs-toggle="collapse" role="button">
+                                <i class="bi bi-graph-up"></i> Rapports & Statistiques
+                                <i class="bi bi-chevron-down ms-auto"></i>
+                            </a>
+                            <div class="collapse" id="rapportMenu">
+                                <ul class="nav flex-column ms-3">
+                                    <li class="nav-item">
+                                        <a class="nav-link" href="/admin/reports/ca-global">
+                                            <i class="bi bi-graph-up-arrow"></i> CA Global (Mois/Année)
+                                        </a>
+                                    </li>
+                                    <li class="nav-item">
+                                        <a class="nav-link" href="/admin/reports/revenue">
+                                            <i class="bi bi-wallet2"></i> CA Réservations
+                                        </a>
+                                    </li>
+                                    <!-- <li class="nav-item">
+                                        <a class="nav-link" href="/admin/reports/advertising">
+                                            <i class="bi bi-tv"></i> CA Publicité
+                                        </a>
+                                    </li> -->
+                                    <li class="nav-item">
+                                        <a class="nav-link" href="/admin/reports/paiements">
+                                            <i class="bi bi-cash-stack"></i> Rapport Paiements
+                                        </a>
+                                        <a class="nav-link" href="/admin/reports/chiffre-affaire-voyage-vehicule">
+                                            <i class="bi bi-graph-up-arrow"></i> CA par Voyage-Véhicule
+                                        </a>
+                                    </li>
+                                    <li class="nav-item">
+                                        <a class="nav-link" href="/admin/diffusions-publicitaires/statistiques">
+                                            <i class="bi bi-graph-up"></i> Statistiques Publicité
+                                        </a>
+                                    </li>
+                                </ul>
+                            </div>
                         </li>
                     </ul>
                 </div>

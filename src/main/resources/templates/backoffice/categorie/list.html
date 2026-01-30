@@ -41,8 +41,8 @@
                                               th:style="|background: ${categorie.couleur != null ? categorie.couleur : '#ddd'}; border:1px solid rgba(0,0,0,0.08); padding:4px 8px; display:inline-block; border-radius:6px; color:#000;|"></span>
                                     </td>
                                     <td class="text-end">
-                                        <a th:href="@{'/admin/categories/' + ${categorie.idCategorie} + '/edit'}" class="btn btn-sm btn-warning">Modifier</a>
-                                        <a th:href="@{'/admin/categories/' + ${categorie.idCategorie} + '/delete'}" class="btn btn-sm btn-danger" onclick="return confirm('Supprimer cette catégorie ?');">Supprimer</a>
+                                        <a th:href="@{'/admin/categories/' + ${categorie.idCategorie} + '/edit'}" class="btn btn-sm btn-outline-primary">Modifier</a>
+                                        <a th:href="@{'/admin/categories/' + ${categorie.idCategorie} + '/delete'}" class="btn btn-sm btn-outline-danger" onclick="return confirm('Supprimer cette catégorie ?');">Supprimer</a>
                                     </td>
                                 </tr>
                             </tbody>

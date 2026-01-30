@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" th:replace="~{backoffice/layout :: layout(~{::title}, ~{::main})}">
+<head>
+    <title>Historique des Prix</title>
+</head>
+<body>
+<main style="margin-left: 0; padding: 20px;">
+    <div class="mb-4">
+        <h2>Historique des Prix - <span th:text="${produit?.nom}"></span></h2>
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a th:href="@{/admin/produits}">Produits</a></li>
+                <li class="breadcrumb-item active" aria-current="page">Historique</li>
+            </ol>
+        </nav>
+    </div>
+
+    <div class="card mb-3">
+        <div class="card-body">
+            <h5>Informations du produit</h5>
+            <p><strong>Nom:</strong> <span th:text="${produit?.nom}"></span></p>
+            <p><strong>Prix actuel:</strong> <span th:text="${#numbers.formatDecimal(produit?.prix, 0, 'COMMA', 2, 'POINT')} + ' Ar'"></span></p>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="card-body">
+            <h5 class="card-title">Historique des changements de prix</h5>
+            <div class="table-responsive">
+                <table class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th>Date</th>
+                            <th>Prix</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr th:each="h : ${historique}">
+                            <td th:text="${#temporals.format(h.date, 'dd/MM/yyyy')}"></td>
+                            <td th:text="${#numbers.formatDecimal(h.montant, 0, 'COMMA', 2, 'POINT')} + ' Ar'"></td>
+                        </tr>
+                        <tr th:if="${#lists.isEmpty(historique)}">
+                            <td colspan="2" class="text-center text-muted">Aucun historique disponible</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <div class="mt-3">
+        <a th:href="@{/admin/produits}" class="btn btn-secondary">
+            <i class="bi bi-arrow-left"></i> Retour
+        </a>
+    </div>
+</main>
+</body>
+</html>

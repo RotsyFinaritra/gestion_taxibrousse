@@ -20,7 +20,7 @@
                         <td th:text="${e.classe != null ? e.classe.libelle : '-'}"></td>
                         <td th:text="${e.numPlace}"></td>
                         <td>
-                            <a th:href="@{'/admin/classe-siege-vehicule/' + ${e.idClasseSiegeVehicule} + '/delete'}" class="btn btn-sm btn-danger">Supprimer</a>
+                            <a th:href="@{'/admin/classe-siege-vehicule/' + ${e.idClasseSiegeVehicule} + '/delete'}" class="btn btn-sm btn-outline-danger">Supprimer</a>
                         </td>
                     </tr>
                 </tbody>

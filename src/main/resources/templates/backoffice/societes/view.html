@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" th:replace="~{backoffice/layout :: layout (~{::title}, ~{::content})}">
+<head>
+    <title>Détails de la Société</title>
+</head>
+<body>
+    <th:block th:fragment="content">
+        <div class="container-fluid">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h1><i class="bi bi-building"></i> Détails de la Société</h1>
+                <div>
+                    <a th:href="@{/admin/societes/{id}/edit(id=${societe.idSociete})}" class="btn btn-warning">
+                        <i class="bi bi-pencil"></i> Modifier
+                    </a>
+                    <a href="/admin/societes" class="btn btn-secondary">
+                        <i class="bi bi-arrow-left"></i> Retour
+                    </a>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <h5>Informations Générales</h5>
+                            <table class="table table-borderless">
+                                <tr>
+                                    <th width="150">ID:</th>
+                                    <td th:text="${societe.idSociete}"></td>
+                                </tr>
+                                <tr>
+                                    <th>Nom:</th>
+                                    <td><strong th:text="${societe.nom}"></strong></td>
+                                </tr>
+                                <tr>
+                                    <th>Contact:</th>
+                                    <td th:text="${societe.contact ?: 'Non renseigné'}"></td>
+                                </tr>
+                                <tr>
+                                    <th>Email:</th>
+                                    <td>
+                                        <span th:if="${societe.email}">
+                                            <a th:href="'mailto:' + ${societe.email}" th:text="${societe.email}"></a>
+                                        </span>
+                                        <span th:if="${societe.email == null}" class="text-muted">Non renseigné</span>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <th>Tarif/Diffusion:</th>
+                                    <td>
+                                        <span class="badge bg-success fs-6">
+                                            <span th:text="${#numbers.formatDecimal(societe.tarifParDiffusion, 1, 'COMMA', 2, 'POINT')}"></span> MGA
+                                        </span>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <th>Date de Création:</th>
+                                    <td th:text="${#temporals.format(societe.dateCreation, 'dd/MM/yyyy')}"></td>
+                                </tr>
+                            </table>
+                        </div>
+                        <div class="col-md-6">
+                            <h5>Vidéos Publicitaires</h5>
+                            <div th:if="${societe.videosPublicitaires != null and !societe.videosPublicitaires.isEmpty()}">
+                                <p class="text-muted">
+                                    <i class="bi bi-camera-video"></i> 
+                                    <span th:text="${societe.videosPublicitaires.size()}"></span> vidéo(s) enregistrée(s)
+                                </p>
+                                <a th:href="@{/admin/videos-publicitaires(societeId=${societe.idSociete})}" 
+                                   class="btn btn-outline-primary btn-sm">
+                                    <i class="bi bi-eye"></i> Voir les vidéos
+                                </a>
+                            </div>
+                            <div th:if="${societe.videosPublicitaires == null or societe.videosPublicitaires.isEmpty()}">
+                                <p class="text-muted">
+                                    <i class="bi bi-inbox"></i> Aucune vidéo publicitaire
+                                </p>
+                                <a href="/admin/videos-publicitaires/new" class="btn btn-outline-success btn-sm">
+                                    <i class="bi bi-plus-circle"></i> Ajouter une vidéo
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </th:block>
+</body>
+</html>

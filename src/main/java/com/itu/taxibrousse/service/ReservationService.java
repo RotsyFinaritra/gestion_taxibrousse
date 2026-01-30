@@ -443,6 +443,25 @@ public class ReservationService {
         return reservationRepository.findByClient_IdClient(idClient);
     }
 
+    public List<Reservation> findWithFilters(Integer id, String dateDebut, String dateFin, 
+                                             Integer etat, Integer voyageId, Integer vehiculeId, Integer clientId) {
+        LocalDateTime dateDebutParsed = null;
+        LocalDateTime dateFinParsed = null;
+        
+        try {
+            if (dateDebut != null && !dateDebut.isEmpty()) {
+                dateDebutParsed = LocalDateTime.parse(dateDebut + "T00:00:00");
+            }
+            if (dateFin != null && !dateFin.isEmpty()) {
+                dateFinParsed = LocalDateTime.parse(dateFin + "T23:59:59");
+            }
+        } catch (Exception e) {
+            logger.warn("Erreur lors du parsing des dates: " + e.getMessage());
+        }
+        
+        return reservationRepository.findWithFilters(id, dateDebutParsed, dateFinParsed, etat, voyageId, vehiculeId, clientId);
+    }
+
     public List<Reservation> findByVoyageVehicule(Integer idVoyageVehicule) {
         return reservationRepository.findByVoyageVehicule_IdVoyageVehicule(idVoyageVehicule);
     }
@@ -458,4 +477,24 @@ public class ReservationService {
      * (may be null). Returns the discounted price or null.
      */
     
+    public BigDecimal calculateRevenue(Integer voyageVehiculeId) {
+        List<Reservation> reservations = findByVoyageVehicule(voyageVehiculeId);
+        return reservations.stream()
+            .map(this::getMontantTotal)
+            .reduce(BigDecimal.ZERO, BigDecimal::add);
+    }
+    
+    public BigDecimal calculateRevenueByMonth(Integer mois, Integer annee) {
+        List<Reservation> reservations = reservationRepository.findByMonthAndYear(mois, annee);
+        return reservations.stream()
+            .map(this::getMontantTotal)
+            .reduce(BigDecimal.ZERO, BigDecimal::add);
+    }
+    
+    public BigDecimal getTotalRevenue() {
+        List<Reservation> reservations = findAll();
+        return reservations.stream()
+            .map(this::getMontantTotal)
+            .reduce(BigDecimal.ZERO, BigDecimal::add);
+    }
 }

@@ -26,8 +26,26 @@ public class VoyageVehiculeAdminController {
     }
     
     @GetMapping
-    public String list(Model model) {
-        model.addAttribute("voyageVehicules", voyageVehiculeService.findAll());
+    public String list(Model model,
+                       @RequestParam(value = "id", required = false) Integer id,
+                       @RequestParam(value = "voyageId", required = false) Integer voyageId,
+                       @RequestParam(value = "dateDepart", required = false) String dateDepart,
+                       @RequestParam(value = "vehiculeId", required = false) Integer vehiculeId,
+                       @RequestParam(value = "immatriculation", required = false) String immatriculation,
+                       @RequestParam(value = "prixOrder", required = false) String prixOrder) {
+
+        model.addAttribute("voyageVehicules", voyageVehiculeService.findWithFilters(id, voyageId, dateDepart, vehiculeId, immatriculation, prixOrder));
+        model.addAttribute("voyages", voyageService.findAll());
+        model.addAttribute("vehicules", vehiculeService.findAll());
+
+        // return filter values to view
+        model.addAttribute("filterId", id);
+        model.addAttribute("filterVoyageId", voyageId);
+        model.addAttribute("filterDateDepart", dateDepart);
+        model.addAttribute("filterVehiculeId", vehiculeId);
+        model.addAttribute("filterImmatriculation", immatriculation);
+        model.addAttribute("filterPrixOrder", prixOrder);
+
         return "backoffice/voyage-vehicules/list";
     }
     

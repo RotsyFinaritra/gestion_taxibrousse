@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" th:replace="~{backoffice/layout :: layout (~{::title}, ~{::content})}">
+<head>
+    <title>Statistiques Diffusions Publicitaires</title>
+</head>
+<body>
+    <th:block th:fragment="content">
+        <div class="container-fluid">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h1><i class="bi bi-graph-up"></i> Statistiques des Diffusions</h1>
+                <a href="/admin/diffusions-publicitaires" class="btn btn-secondary">
+                    <i class="bi bi-arrow-left"></i> Retour aux Diffusions
+                </a>
+            </div>
+
+            <!-- Formulaire de sélection -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5><i class="bi bi-calendar3"></i> Sélectionner la Période</h5>
+                </div>
+                <div class="card-body">
+                    <form method="get" class="row g-3">
+                        <div class="col-md-3">
+                            <label for="mois" class="form-label">Mois *</label>
+                            <select name="mois" id="mois" class="form-select" required>
+                                <option value="">-- Sélectionner un mois --</option>
+                                <option value="1" th:selected="${mois == 1}">Janvier</option>
+                                <option value="2" th:selected="${mois == 2}">Février</option>
+                                <option value="3" th:selected="${mois == 3}">Mars</option>
+                                <option value="4" th:selected="${mois == 4}">Avril</option>
+                                <option value="5" th:selected="${mois == 5}">Mai</option>
+                                <option value="6" th:selected="${mois == 6}">Juin</option>
+                                <option value="7" th:selected="${mois == 7}">Juillet</option>
+                                <option value="8" th:selected="${mois == 8}">Août</option>
+                                <option value="9" th:selected="${mois == 9}">Septembre</option>
+                                <option value="10" th:selected="${mois == 10}">Octobre</option>
+                                <option value="11" th:selected="${mois == 11}">Novembre</option>
+                                <option value="12" th:selected="${mois == 12}">Décembre</option>
+                            </select>
+                        </div>
+                        <div class="col-md-3">
+                            <label for="annee" class="form-label">Année *</label>
+                            <input type="number" name="annee" id="annee" class="form-control" 
+                                   th:value="${annee}" required min="2020" max="2030" placeholder="2026">
+                        </div>
+                        <div class="col-md-6 d-flex align-items-end">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="bi bi-search"></i> Générer les Statistiques
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Résultats des statistiques -->
+            <div th:if="${statistiques != null}" class="row">
+                <div class="col-md-4">
+                    <div class="card text-white bg-info">
+                        <div class="card-header">
+                            <h6><i class="bi bi-file-earmark-text"></i> Enregistrements</h6>
+                        </div>
+                        <div class="card-body">
+                            <h2 th:text="${statistiques.nombreEnregistrements}">0</h2>
+                            <p class="mb-0">Nombre d'enregistrements de diffusion</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-md-4">
+                    <div class="card text-white bg-warning">
+                        <div class="card-header">
+                            <h6><i class="bi bi-broadcast"></i> Diffusions Totales</h6>
+                        </div>
+                        <div class="card-body">
+                            <h2 th:text="${statistiques.totalDiffusions}">0</h2>
+                            <p class="mb-0">Nombre total de diffusions vidéo</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-md-4">
+                    <div class="card text-white bg-success">
+                        <div class="card-header">
+                            <h6><i class="bi bi-currency-exchange"></i> Chiffre d'Affaires</h6>
+                        </div>
+                        <div class="card-body">
+                            <h2>
+                                <span th:text="${#numbers.formatDecimal(statistiques.chiffreAffaires, 1, 'COMMA', 2, 'POINT')}">0.00</span>
+                                <small>MGA</small>
+                            </h2>
+                            <p class="mb-0">Total des revenus publicitaires</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Détails par période -->
+            <div th:if="${statistiques != null}" class="card mt-4">
+                <div class="card-header">
+                    <h5>
+                        <i class="bi bi-calendar-event"></i> 
+                        Détails pour 
+                        <span th:switch="${mois}">
+                            <span th:case="1">Janvier</span>
+                            <span th:case="2">Février</span>
+                            <span th:case="3">Mars</span>
+                            <span th:case="4">Avril</span>
+                            <span th:case="5">Mai</span>
+                            <span th:case="6">Juin</span>
+                            <span th:case="7">Juillet</span>
+                            <span th:case="8">Août</span>
+                            <span th:case="9">Septembre</span>
+                            <span th:case="10">Octobre</span>
+                            <span th:case="11">Novembre</span>
+                            <span th:case="12">Décembre</span>
+                        </span>
+                        <span th:text="${annee}"></span>
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <h6><i class="bi bi-info-circle"></i> Résumé</h6>
+                            <ul class="list-group list-group-flush">
+                                <li class="list-group-item d-flex justify-content-between">
+                                    <span>Enregistrements de diffusion:</span>
+                                    <strong th:text="${statistiques.nombreEnregistrements}"></strong>
+                                </li>
+                                <li class="list-group-item d-flex justify-content-between">
+                                    <span>Total des diffusions vidéo:</span>
+                                    <strong th:text="${statistiques.totalDiffusions}"></strong>
+                                </li>
+                                <li class="list-group-item d-flex justify-content-between">
+                                    <span>Revenus publicitaires:</span>
+                                    <strong>
+                                        <span th:text="${#numbers.formatDecimal(statistiques.chiffreAffaires, 1, 'COMMA', 2, 'POINT')}"></span> MGA
+                                    </strong>
+                                </li>
+                                <li class="list-group-item d-flex justify-content-between">
+                                    <span>Moyenne par enregistrement:</span>
+                                    <strong>
+                                        <span th:if="${statistiques.nombreEnregistrements > 0}">
+                                            <span th:text="${#numbers.formatDecimal(statistiques.totalDiffusions / statistiques.nombreEnregistrements, 1, 1)}"></span> diffusions
+                                        </span>
+                                        <span th:if="${statistiques.nombreEnregistrements == 0}">N/A</span>
+                                    </strong>
+                                </li>
+                            </ul>
+                        </div>
+                        <div class="col-md-6">
+                            <h6><i class="bi bi-graph-up"></i> Actions Recommandées</h6>
+                            <div th:if="${statistiques.totalDiffusions == 0}" class="alert alert-warning">
+                                <i class="bi bi-exclamation-triangle"></i>
+                                Aucune diffusion enregistrée pour cette période.
+                                <br>
+                                <a href="/admin/diffusions-publicitaires/new" class="btn btn-sm btn-outline-warning mt-2">
+                                    Programmer des diffusions
+                                </a>
+                            </div>
+                            <div th:if="${statistiques.totalDiffusions > 0}" class="alert alert-success">
+                                <i class="bi bi-check-circle"></i>
+                                Période active avec <strong th:text="${statistiques.totalDiffusions}"></strong> diffusions.
+                                <br>
+                                <a href="/admin/diffusions-publicitaires" class="btn btn-sm btn-outline-success mt-2">
+                                    Voir les détails
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Message si aucune statistique -->
+            <div th:if="${statistiques == null}" class="card">
+                <div class="card-body text-center">
+                    <i class="bi bi-graph-up text-muted" style="font-size: 4rem;"></i>
+                    <h4 class="text-muted">Sélectionnez une période</h4>
+                    <p class="text-muted">Choisissez un mois et une année pour afficher les statistiques des diffusions publicitaires.</p>
+                </div>
+            </div>
+        </div>
+    </th:block>
+</body>
+</html>

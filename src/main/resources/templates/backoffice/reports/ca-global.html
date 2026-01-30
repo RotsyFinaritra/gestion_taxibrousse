@@ -1,0 +1,729 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" th:replace="~{backoffice/layout :: layout(~{::title}, ~{::main})}">
+<head>
+    <title>Chiffre d'Affaires Global</title>
+</head>
+<body>
+<main>
+    <style>
+        /* === CA Global Premium Styles === */
+        .ca-global-container {
+            max-width: 100%;
+            margin: 0;
+            padding: 0;
+        }
+        
+        .page-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 16px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            color: white;
+            box-shadow: 0 10px 40px rgba(102, 126, 234, 0.3);
+        }
+        .page-header h2 {
+            margin: 0;
+            font-weight: 700;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .page-header p {
+            margin: 0.5rem 0 0 0;
+            opacity: 0.9;
+        }
+        
+        /* Filter Card */
+        .filter-card {
+            border: none;
+            border-radius: 16px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+            overflow: hidden;
+        }
+        .filter-card .card-header {
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            border-bottom: 1px solid #e9ecef;
+            padding: 1rem 1.5rem;
+        }
+        .filter-card .card-body {
+            padding: 1.5rem;
+        }
+        .filter-card .form-select,
+        .filter-card .form-control {
+            border-radius: 10px;
+            border: 2px solid #e9ecef;
+            padding: 0.75rem 1rem;
+            transition: all 0.3s ease;
+        }
+        .filter-card .form-select:focus,
+        .filter-card .form-control:focus {
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.15);
+        }
+        .btn-calculate {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border: none;
+            border-radius: 10px;
+            padding: 0.75rem 1.5rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+        }
+        .btn-calculate:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+        }
+        
+        /* CA Cards */
+        .ca-card {
+            border: none;
+            border-radius: 16px;
+            overflow: hidden;
+            height: 100%;
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+        }
+        .ca-card:hover {
+            transform: translateY(-8px) scale(1.02);
+            box-shadow: 0 12px 40px rgba(0,0,0,0.15);
+        }
+        .ca-card .card-body {
+            position: relative;
+            padding: 2rem 1.5rem;
+            background: white;
+            overflow: hidden;
+        }
+        .ca-card .card-body::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+        }
+        .ca-card.ca-tickets .card-body::before {
+            background: linear-gradient(90deg, #0d6efd, #0dcaf0);
+        }
+        .ca-card.ca-diffusion .card-body::before {
+            background: linear-gradient(90deg, #0dcaf0, #20c997);
+        }
+        .ca-card.ca-vente .card-body::before {
+            background: linear-gradient(90deg, #ffc107, #fd7e14);
+        }
+        .ca-card.ca-total .card-body::before {
+            background: linear-gradient(90deg, #198754, #20c997);
+        }
+        
+        .ca-icon {
+            font-size: 2.5rem;
+            margin-bottom: 0.75rem;
+            background: linear-gradient(135deg, currentColor 0%, currentColor 100%);
+            background-clip: text;
+            -webkit-background-clip: text;
+            padding: 0.5rem;
+            border-radius: 12px;
+            display: inline-block;
+        }
+        .ca-card.ca-tickets .ca-icon { color: #0d6efd; background: rgba(13, 110, 253, 0.1); }
+        .ca-card.ca-diffusion .ca-icon { color: #0dcaf0; background: rgba(13, 202, 240, 0.1); }
+        .ca-card.ca-vente .ca-icon { color: #ffc107; background: rgba(255, 193, 7, 0.1); }
+        .ca-card.ca-total .ca-icon { color: #198754; background: rgba(25, 135, 84, 0.1); }
+        
+        .ca-value {
+            font-size: 1.75rem;
+            font-weight: 800;
+            margin: 0.5rem 0;
+            letter-spacing: -0.5px;
+        }
+        .ca-label {
+            font-size: 0.875rem;
+            color: #6c757d;
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        /* Chart & Table Container */
+        .data-card {
+            border: none;
+            border-radius: 16px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+            overflow: hidden;
+            height: 100%;
+        }
+        .data-card .card-header {
+            background: white;
+            border-bottom: 2px solid #f8f9fa;
+            padding: 1.25rem 1.5rem;
+        }
+        .data-card .card-header h5 {
+            margin: 0;
+            font-weight: 600;
+            color: #495057;
+        }
+        .data-card .card-body {
+            padding: 1.5rem;
+        }
+        
+        .chart-container {
+            position: relative;
+            height: 320px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        /* Table Styles */
+        .table-recap {
+            margin: 0;
+        }
+        .table-recap thead th {
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            border: none;
+            padding: 1rem;
+            font-weight: 600;
+            color: #495057;
+            text-transform: uppercase;
+            font-size: 0.75rem;
+            letter-spacing: 0.5px;
+        }
+        .table-recap tbody td {
+            padding: 1rem;
+            vertical-align: middle;
+            border-color: #f8f9fa;
+        }
+        .table-recap tbody tr {
+            transition: background-color 0.2s ease;
+        }
+        .table-recap tbody tr:hover {
+            background-color: #f8f9fa;
+        }
+        .table-recap .badge {
+            padding: 0.5rem 1rem;
+            font-weight: 500;
+            font-size: 0.8rem;
+        }
+        .table-recap .table-success {
+            background: linear-gradient(135deg, rgba(25, 135, 84, 0.1) 0%, rgba(32, 201, 151, 0.1) 100%);
+        }
+        .table-recap .table-success td {
+            border: none;
+            font-size: 1rem;
+        }
+        
+        /* Loading State */
+        #loadingContainer {
+            background: rgba(255,255,255,0.95);
+            border-radius: 16px;
+            padding: 3rem;
+        }
+        #loadingContainer .spinner-border {
+            width: 3rem;
+            height: 3rem;
+        }
+        
+        /* Error State */
+        .alert-danger {
+            border: none;
+            border-radius: 12px;
+            background: linear-gradient(135deg, #f8d7da 0%, #f5c6cb 100%);
+            padding: 1.25rem;
+        }
+
+        main {
+            margin-left: 0;
+            padding-top: 20px;
+        }
+        
+        /* Animations */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        .ca-card {
+            animation: fadeInUp 0.5s ease forwards;
+        }
+        .ca-card:nth-child(1) { animation-delay: 0.1s; }
+        .ca-card:nth-child(2) { animation-delay: 0.2s; }
+        .ca-card:nth-child(3) { animation-delay: 0.3s; }
+        .ca-card:nth-child(4) { animation-delay: 0.4s; }
+    </style>
+
+    <div class="ca-global-container">
+    <!-- Page Header -->
+    <div class="page-header">
+        <h2><i class="bi bi-graph-up-arrow me-2"></i>Chiffre d'Affaires Global</h2>
+        <p>Analyse complète du chiffre d'affaires par mois et année</p>
+    </div>
+
+    <!-- Filtre Période -->
+    <div class="card filter-card mb-4">
+        <div class="card-header">
+            <h5 class="mb-0"><i class="bi bi-calendar3 me-2"></i>Sélection de la période</h5>
+        </div>
+        <div class="card-body">
+            <form id="caForm" onsubmit="return false;">
+                <div class="row g-3 align-items-end">
+                    <div class="col-md-4">
+                        <label for="mois" class="form-label fw-semibold">Mois</label>
+                        <select id="mois" class="form-select">
+                            <option value="1" th:selected="${currentMonth == 1}">Janvier</option>
+                            <option value="2" th:selected="${currentMonth == 2}">Février</option>
+                            <option value="3" th:selected="${currentMonth == 3}">Mars</option>
+                            <option value="4" th:selected="${currentMonth == 4}">Avril</option>
+                            <option value="5" th:selected="${currentMonth == 5}">Mai</option>
+                            <option value="6" th:selected="${currentMonth == 6}">Juin</option>
+                            <option value="7" th:selected="${currentMonth == 7}">Juillet</option>
+                            <option value="8" th:selected="${currentMonth == 8}">Août</option>
+                            <option value="9" th:selected="${currentMonth == 9}">Septembre</option>
+                            <option value="10" th:selected="${currentMonth == 10}">Octobre</option>
+                            <option value="11" th:selected="${currentMonth == 11}">Novembre</option>
+                            <option value="12" th:selected="${currentMonth == 12}">Décembre</option>
+                        </select>
+                    </div>
+                    <div class="col-md-4">
+                        <label for="annee" class="form-label fw-semibold">Année</label>
+                        <input type="number" id="annee" class="form-control" 
+                               th:value="${currentYear}" 
+                               min="2020" max="2030" />
+                    </div>
+                    <div class="col-md-4">
+                        <button type="button" id="btnCalculer" class="btn btn-primary btn-calculate w-100">
+                            <i class="bi bi-calculator me-2"></i>Calculer le CA
+                        </button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Résultats -->
+    <div id="resultatContainer" style="display: none;">
+        <div class="row g-4 mb-4">
+            <!-- CA Tickets -->
+            <div class="col-md-6 col-lg-3">
+                <div class="card ca-card ca-tickets">
+                    <div class="card-body text-center">
+                        <div class="ca-icon">
+                            <i class="bi bi-ticket-perforated"></i>
+                        </div>
+                        <h3 class="ca-value text-primary" id="caTickets">0 Ar</h3>
+                        <p class="ca-label mb-0">CA Réservations</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- CA Diffusion Publicitaire -->
+            <div class="col-md-6 col-lg-3">
+                <div class="card ca-card ca-diffusion">
+                    <div class="card-body text-center">
+                        <div class="ca-icon">
+                            <i class="bi bi-tv"></i>
+                        </div>
+                        <h3 class="ca-value text-info" id="caDiffusionPub">0 Ar</h3>
+                        <p class="ca-label mb-0">CA Publicité</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- CA Vente de Produits -->
+            <div class="col-md-6 col-lg-3">
+                <div class="card ca-card ca-vente" style="cursor: pointer;" onclick="afficherModalProduits()" title="Cliquez pour voir le détail par produit">
+                    <div class="card-body text-center">
+                        <div class="ca-icon">
+                            <i class="bi bi-basket"></i>
+                        </div>
+                        <h3 class="ca-value text-warning" id="caVenteProduits">0 Ar</h3>
+                        <p class="ca-label mb-0">CA Produits <i class="bi bi-eye-fill ms-1" style="font-size: 0.8rem;"></i></p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Total Global -->
+            <div class="col-md-6 col-lg-3">
+                <div class="card ca-card ca-total">
+                    <div class="card-body text-center">
+                        <div class="ca-icon">
+                            <i class="bi bi-graph-up"></i>
+                        </div>
+                        <h3 class="ca-value text-success" id="totalGlobal">0 Ar</h3>
+                        <p class="ca-label mb-0">Total Global</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Graphique et Tableau -->
+        <div class="row g-4">
+            <div class="col-lg-5">
+                <div class="card data-card">
+                    <div class="card-header">
+                        <h5><i class="bi bi-pie-chart me-2"></i>Répartition du CA</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="chart-container">
+                            <canvas id="caChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-lg-7">
+                <div class="card data-card">
+                    <div class="card-header">
+                        <h5><i class="bi bi-table me-2"></i>Récapitulatif Détaillé</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table table-recap mb-0">
+                                <thead>
+                                    <tr>
+                                        <th>Source de Revenus</th>
+                                        <th class="text-end">Montant</th>
+                                        <th class="text-end">Part</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="tableRecap">
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Message d'erreur -->
+    <div id="errorContainer" class="alert alert-danger" style="display: none;">
+        <i class="bi bi-exclamation-triangle me-2"></i><span id="errorMessage"></span>
+    </div>
+
+    <!-- Message de chargement -->
+    <div id="loadingContainer" class="text-center py-5" style="display: none;">
+        <div class="spinner-border text-primary" role="status">
+            <span class="visually-hidden">Chargement...</span>
+        </div>
+        <p class="mt-3 text-muted fw-semibold">Calcul en cours...</p>
+    </div>
+    </div><!-- End ca-global-container -->
+
+    <!-- Modal CA par Produit -->
+    <div class="modal fade" id="modalCAProduits" tabindex="-1" aria-labelledby="modalCAProduitsLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg modal-dialog-scrollable">
+            <div class="modal-content">
+                <div class="modal-header" style="background: linear-gradient(135deg, #ffc107 0%, #fd7e14 100%); color: white;">
+                    <h5 class="modal-title" id="modalCAProduitsLabel">
+                        <i class="bi bi-basket me-2"></i>Chiffre d'Affaires par Produit
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div id="modalLoadingProduits" class="text-center py-5" style="display: none;">
+                        <div class="spinner-border text-warning" role="status">
+                            <span class="visually-hidden">Chargement...</span>
+                        </div>
+                        <p class="mt-3 text-muted">Chargement des données...</p>
+                    </div>
+                    <div id="modalErrorProduits" class="alert alert-danger" style="display: none;">
+                        <i class="bi bi-exclamation-triangle me-2"></i><span id="modalErrorMessage"></span>
+                    </div>
+                    <div id="modalContentProduits" style="display: none;">
+                        <div class="table-responsive">
+                            <table class="table table-hover mb-0">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th>Produit</th>
+                                        <th class="text-end">Quantité Vendue</th>
+                                        <th class="text-end">Prix Moyen</th>
+                                        <th class="text-end">CA Total</th>
+                                        <th class="text-end">Part</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="tableBodyProduits">
+                                </tbody>
+                                <tfoot class="table-success">
+                                    <tr>
+                                        <th>TOTAL</th>
+                                        <th class="text-end" id="totalQuantite">0</th>
+                                        <th class="text-end">-</th>
+                                        <th class="text-end" id="totalCA">0,00 Ar</th>
+                                        <th class="text-end">100%</th>
+                                    </tr>
+                                </tfoot>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                        <i class="bi bi-x-circle me-1"></i>Fermer
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <script>
+    (function() {
+        var caChart = null;
+
+        function calculerCA() {
+            var moisEl = document.getElementById('mois');
+            var anneeEl = document.getElementById('annee');
+            
+            if (!moisEl || !anneeEl) {
+                return;
+            }
+            
+            var mois = moisEl.value;
+            var annee = anneeEl.value;
+            
+            // Masquer les résultats et erreurs
+            document.getElementById('resultatContainer').style.display = 'none';
+            document.getElementById('errorContainer').style.display = 'none';
+            document.getElementById('loadingContainer').style.display = 'block';
+            
+            // Appel AJAX
+            var url = '/admin/reports/ca-global/compute?mois=' + mois + '&annee=' + annee;
+            
+            fetch(url)
+                .then(function(response) {
+                    if (!response.ok) {
+                        throw new Error('HTTP error! status: ' + response.status);
+                    }
+                    return response.json();
+                })
+                .then(function(data) {
+                    document.getElementById('loadingContainer').style.display = 'none';
+                    
+                    if (data.success) {
+                        afficherResultats(data);
+                    } else {
+                        document.getElementById('errorMessage').textContent = data.error || 'Erreur inconnue';
+                        document.getElementById('errorContainer').style.display = 'block';
+                    }
+                })
+                .catch(function(error) {
+                    document.getElementById('loadingContainer').style.display = 'none';
+                    document.getElementById('errorMessage').textContent = 'Erreur de connexion: ' + error.message;
+                    document.getElementById('errorContainer').style.display = 'block';
+                });
+        }
+
+        function afficherResultats(data) {
+            document.getElementById('caTickets').textContent = formatMontant(data.caTickets);
+            document.getElementById('caDiffusionPub').textContent = formatMontant(data.caDiffusionPub);
+            document.getElementById('caVenteProduits').textContent = formatMontant(data.caVenteProduits);
+            document.getElementById('totalGlobal').textContent = formatMontant(data.totalGlobal);
+            
+            var tbody = document.getElementById('tableRecap');
+            tbody.innerHTML = '';
+            
+            var sources = [
+                { nom: 'Réservations (Tickets)', montant: data.caTickets, color: 'primary' },
+                { nom: 'Diffusion Publicitaire', montant: data.caDiffusionPub, color: 'info' },
+                { nom: 'Vente de Produits', montant: data.caVenteProduits, color: 'warning' }
+            ];
+            
+            for (var i = 0; i < sources.length; i++) {
+                var source = sources[i];
+                var pourcentage = data.totalGlobal > 0 
+                    ? ((source.montant / data.totalGlobal) * 100).toFixed(2) 
+                    : 0;
+                
+                var row = '<tr>' +
+                    '<td><span class="badge bg-' + source.color + '">' + source.nom + '</span></td>' +
+                    '<td class="text-end fw-bold">' + formatMontant(source.montant) + '</td>' +
+                    '<td class="text-end">' + pourcentage + '%</td>' +
+                    '</tr>';
+                tbody.innerHTML += row;
+            }
+            
+            tbody.innerHTML += '<tr class="table-success">' +
+                '<td class="fw-bold">TOTAL GLOBAL</td>' +
+                '<td class="text-end fw-bold">' + formatMontant(data.totalGlobal) + '</td>' +
+                '<td class="text-end fw-bold">100%</td>' +
+                '</tr>';
+            
+            creerGraphique(data);
+            document.getElementById('resultatContainer').style.display = 'block';
+        }
+
+        function creerGraphique(data) {
+            var ctx = document.getElementById('caChart');
+            if (!ctx) return;
+            
+            if (caChart) {
+                caChart.destroy();
+            }
+            
+            caChart = new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Réservations', 'Diffusion Publicitaire', 'Vente de Produits'],
+                    datasets: [{
+                        data: [data.caTickets, data.caDiffusionPub, data.caVenteProduits],
+                        backgroundColor: [
+                            'rgba(13, 110, 253, 0.8)',
+                            'rgba(13, 202, 240, 0.8)',
+                            'rgba(255, 193, 7, 0.8)'
+                        ],
+                        borderColor: [
+                            'rgba(13, 110, 253, 1)',
+                            'rgba(13, 202, 240, 1)',
+                            'rgba(255, 193, 7, 1)'
+                        ],
+                        borderWidth: 2
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: true,
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                            labels: { padding: 15, font: { size: 12 } }
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    var label = context.label || '';
+                                    var value = formatMontant(context.parsed);
+                                    var total = 0;
+                                    for (var j = 0; j < context.dataset.data.length; j++) {
+                                        total += context.dataset.data[j];
+                                    }
+                                    var percentage = total > 0 ? ((context.parsed / total) * 100).toFixed(2) : 0;
+                                    return label + ': ' + value + ' (' + percentage + '%)';
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        function formatMontant(montant) {
+            if (montant === null || montant === undefined) {
+                return '0,00 Ar';
+            }
+            return new Intl.NumberFormat('fr-FR', {
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2
+            }).format(montant) + ' Ar';
+        }
+
+        // Fonction pour afficher le modal des produits
+        window.afficherModalProduits = function() {
+            var moisEl = document.getElementById('mois');
+            var anneeEl = document.getElementById('annee');
+            
+            if (!moisEl || !anneeEl) {
+                return;
+            }
+            
+            var mois = moisEl.value;
+            var annee = anneeEl.value;
+            
+            // Afficher le modal
+            var modal = new bootstrap.Modal(document.getElementById('modalCAProduits'));
+            modal.show();
+            
+            // Masquer contenu et erreur, afficher loading
+            document.getElementById('modalContentProduits').style.display = 'none';
+            document.getElementById('modalErrorProduits').style.display = 'none';
+            document.getElementById('modalLoadingProduits').style.display = 'block';
+            
+            // Appel AJAX
+            var url = '/admin/reports/ca-global/details-produits?mois=' + mois + '&annee=' + annee;
+            
+            fetch(url)
+                .then(function(response) {
+                    if (!response.ok) {
+                        throw new Error('HTTP error! status: ' + response.status);
+                    }
+                    return response.json();
+                })
+                .then(function(data) {
+                    document.getElementById('modalLoadingProduits').style.display = 'none';
+                    
+                    if (data.success) {
+                        afficherDetailsProduits(data);
+                    } else {
+                        document.getElementById('modalErrorMessage').textContent = data.error || 'Erreur inconnue';
+                        document.getElementById('modalErrorProduits').style.display = 'block';
+                    }
+                })
+                .catch(function(error) {
+                    document.getElementById('modalLoadingProduits').style.display = 'none';
+                    document.getElementById('modalErrorMessage').textContent = 'Erreur de connexion: ' + error.message;
+                    document.getElementById('modalErrorProduits').style.display = 'block';
+                });
+        };
+
+        function afficherDetailsProduits(data) {
+            var tbody = document.getElementById('tableBodyProduits');
+            tbody.innerHTML = '';
+            
+            var produits = data.produits || [];
+            var totalCA = data.totalCA || 0;
+            var totalQuantite = 0;
+            
+            for (var i = 0; i < produits.length; i++) {
+                var p = produits[i];
+                totalQuantite += p.quantite;
+                
+                var pourcentage = totalCA > 0 
+                    ? ((p.caTotal / totalCA) * 100).toFixed(2) 
+                    : 0;
+                
+                var row = '<tr>' +
+                    '<td><strong>' + p.nomProduit + '</strong></td>' +
+                    '<td class="text-end">' + p.quantite + '</td>' +
+                    '<td class="text-end">' + formatMontant(p.prixMoyen) + '</td>' +
+                    '<td class="text-end fw-bold text-warning">' + formatMontant(p.caTotal) + '</td>' +
+                    '<td class="text-end"><span class="badge bg-warning">' + pourcentage + '%</span></td>' +
+                    '</tr>';
+                tbody.innerHTML += row;
+            }
+            
+            if (produits.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="5" class="text-center text-muted py-4">Aucune vente de produit pour cette période</td></tr>';
+            }
+            
+            // Mettre à jour le footer
+            document.getElementById('totalQuantite').textContent = totalQuantite;
+            document.getElementById('totalCA').textContent = formatMontant(totalCA);
+            
+            document.getElementById('modalContentProduits').style.display = 'block';
+        }
+
+        // Attacher l'événement au bouton
+        function init() {
+            var btn = document.getElementById('btnCalculer');
+            if (btn) {
+                btn.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    calculerCA();
+                });
+            }
+            // Charger automatiquement
+            calculerCA();
+        }
+
+        // Initialiser quand le DOM est prêt
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', init);
+        } else {
+            init();
+        }
+    })();
+    </script>
+</main>
+</body>
+</html>

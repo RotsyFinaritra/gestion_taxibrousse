@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" th:replace="~{backoffice/layout :: layout (~{::title}, ~{::content})}">
+<head>
+    <title>Détails de la Vidéo Publicitaire</title>
+</head>
+<body>
+    <th:block th:fragment="content">
+        <div class="container-fluid">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h1><i class="bi bi-camera-video"></i> Détails de la Vidéo</h1>
+                <div>
+                    <a th:href="@{/admin/videos-publicitaires/{id}/edit(id=${video.idVideoPublicitaire})}" class="btn btn-warning">
+                        <i class="bi bi-pencil"></i> Modifier
+                    </a>
+                    <a href="/admin/videos-publicitaires" class="btn btn-secondary">
+                        <i class="bi bi-arrow-left"></i> Retour
+                    </a>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <h5>Informations de la Vidéo</h5>
+                            <table class="table table-borderless">
+                                <tr>
+                                    <th width="120">ID:</th>
+                                    <td th:text="${video.idVideoPublicitaire}"></td>
+                                </tr>
+                                <tr>
+                                    <th>Titre:</th>
+                                    <td><strong th:text="${video.titre}"></strong></td>
+                                </tr>
+                                <tr>
+                                    <th>Société:</th>
+                                    <td>
+                                        <span class="badge bg-info fs-6" th:text="${video.societe.nom}"></span>
+                                        <br>
+                                        <small class="text-muted">
+                                            Tarif: <span th:text="${#numbers.formatDecimal(video.societe.tarifParDiffusion, 1, 'COMMA', 2, 'POINT')}"></span> MGA/diffusion
+                                        </small>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <th>URL Fichier:</th>
+                                    <td>
+                                        <span th:if="${video.urlFichier}">
+                                            <a th:href="${video.urlFichier}" target="_blank" class="btn btn-outline-primary btn-sm">
+                                                <i class="bi bi-play-circle"></i> Voir la vidéo
+                                            </a>
+                                            <br>
+                                            <small class="text-muted" th:text="${video.urlFichier}"></small>
+                                        </span>
+                                        <span th:if="${video.urlFichier == null}" class="text-muted">Non renseigné</span>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <th>Date d'Ajout:</th>
+                                    <td th:text="${#temporals.format(video.dateAjout, 'dd/MM/yyyy')}"></td>
+                                </tr>
+                            </table>
+                        </div>
+                        <div class="col-md-6">
+                            <h5>Statistiques de Diffusion</h5>
+                            <div th:if="${video.diffusionsPublicitaires != null and !video.diffusionsPublicitaires.isEmpty()}">
+                                <p class="text-muted">
+                                    <i class="bi bi-broadcast"></i>
+                                    <span th:text="${video.diffusionsPublicitaires.size()}"></span> diffusion(s) programmée(s)
+                                </p>
+                                <a th:href="@{/admin/diffusions-publicitaires(videoId=${video.idVideoPublicitaire})}" 
+                                   class="btn btn-outline-primary btn-sm">
+                                    <i class="bi bi-eye"></i> Voir les diffusions
+                                </a>
+                            </div>
+                            <div th:if="${video.diffusionsPublicitaires == null or video.diffusionsPublicitaires.isEmpty()}">
+                                <p class="text-muted">
+                                    <i class="bi bi-broadcast-pin"></i> Aucune diffusion programmée
+                                </p>
+                                <a href="/admin/diffusions-publicitaires/new" class="btn btn-outline-success btn-sm">
+                                    <i class="bi bi-plus-circle"></i> Programmer une diffusion
+                                </a>
+                            </div>
+                            
+                            <hr>
+                            
+                            <h6>Contact Société</h6>
+                            <table class="table table-borderless table-sm">
+                                <tr th:if="${video.societe.contact}">
+                                    <th width="80">Contact:</th>
+                                    <td th:text="${video.societe.contact}"></td>
+                                </tr>
+                                <tr th:if="${video.societe.email}">
+                                    <th>Email:</th>
+                                    <td>
+                                        <a th:href="'mailto:' + ${video.societe.email}" th:text="${video.societe.email}"></a>
+                                    </td>
+                                </tr>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </th:block>
+</body>
+</html>

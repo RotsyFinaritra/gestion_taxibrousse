@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" th:replace="~{backoffice/layout :: layout (~{::title}, ~{::content})}">
+<head>
+    <title>Diffusion Publicitaire - Formulaire</title>
+</head>
+<body>
+    <th:block th:fragment="content">
+        <div class="container-fluid">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                    <h1>
+                    <i class="bi bi-broadcast"></i>
+                    <span th:if="${diffusion.idDiffusionPubDetails == null}">Nouvelle Diffusion Publicitaire</span>
+                    <span th:if="${diffusion.idDiffusionPubDetails != null}">Modifier Diffusion Publicitaire</span>
+                </h1>
+                <a href="/admin/diffusions-publicitaires" class="btn btn-secondary">
+                    <i class="bi bi-arrow-left"></i> Retour à la liste
+                </a>
+            </div>
+
+            <div class="card">
+                <div class="card-header">
+                    <h5><i class="bi bi-form"></i> Informations de la Diffusion</h5>
+                </div>
+                <div class="card-body">
+                      <form th:action="${diffusion.idDiffusionPubDetails == null} ? '/admin/diffusions-publicitaires/save' : '/admin/diffusions-publicitaires/' + diffusion.idDiffusionPubDetails + '/edit'" 
+                          th:object="${diffusion}" method="post">
+                        
+                        <!-- Champ caché pour l'ID en mode édition -->
+                        <input type="hidden" th:field="*{idDiffusionPubDetails}" th:if="${diffusion.idDiffusionPubDetails != null}">
+                        
+                        <!-- Vidéo Publicitaire (obligatoire) -->
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label for="videoPublicitaire" class="form-label">
+                                    <i class="bi bi-camera-video"></i> Vidéo Publicitaire *
+                                </label>
+                                <select class="form-select" id="videoPublicitaire" th:field="*{videoPublicitaire.idVideoPublicitaire}" required>
+                                    <option value="">-- Sélectionner une vidéo publicitaire --</option>
+                                    <option th:each="video : ${videos}" 
+                                            th:value="${video.idVideoPublicitaire}"
+                                            th:text="${video.titre + ' - ' + video.societe.nom}">
+                                    </option>
+                                </select>
+                                <div class="form-text">Choisissez la vidéo à diffuser</div>
+                            </div>
+                            
+                            <!-- Voyage-Véhicule (obligatoire) -->
+                            <div class="col-md-6">
+                                <label for="voyageVehicule" class="form-label">
+                                    <i class="bi bi-truck"></i> Voyage-Véhicule *
+                                </label>
+                                <select class="form-select" id="voyageVehicule" th:field="*{voyageVehicule.idVoyageVehicule}" required>
+                                    <option value="">-- Sélectionner un voyage-véhicule --</option>
+                                    <option th:each="vv : ${voyageVehicules}" 
+                                          th:value="${vv.idVoyageVehicule}"
+                                          th:text="${(vv.vehicule != null ? vv.vehicule.immatriculation : 'Véhicule #' + vv.idVoyageVehicule) +
+                                                (vv.voyage != null and vv.voyage.trajet != null and vv.voyage.trajet.gareRoutiereDepart != null and vv.voyage.trajet.gareRoutiereArrivee != null ? ' - ' + vv.voyage.trajet.gareRoutiereDepart.nom + ' → ' + vv.voyage.trajet.gareRoutiereArrivee.nom : '') +
+                                                (vv.voyage != null and vv.voyage.dateDepart != null ? ' (' + #temporals.format(vv.voyage.dateDepart, 'dd/MM/yyyy') + ')' : '')}">
+                                    </option>
+                                </select>
+                                <div class="form-text">Véhicule qui diffusera la publicité</div>
+                            </div>
+                        </div>
+                        
+                        <!-- Date de Diffusion et Nombre de Diffusions -->
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label for="dateDiffusionStr" class="form-label">
+                                    <i class="bi bi-calendar-event"></i> Date et Heure de Diffusion
+                                </label>
+                                    <input type="datetime-local" class="form-control" id="dateDiffusionStr" name="dateDiffusionStr" 
+                                        th:value="${diffusion.dateDiffusion != null ? (#temporals.format(diffusion.dateDiffusion, 'yyyy-MM-dd') + 'T' + #temporals.format(diffusion.dateDiffusion, 'HH:mm')) : ''}">
+                                <div class="form-text">Laissez vide pour utiliser la date/heure actuelle</div>
+                            </div>
+                            
+                            <div class="col-md-6">
+                                <label for="nbDiffusion" class="form-label">
+                                    <i class="bi bi-arrow-repeat"></i> Nombre de Diffusions *
+                                </label>
+                                <div class="input-group">
+                                    <input type="number" class="form-control" id="nbDiffusion" th:field="*{nbDiffusion}" 
+                                           required min="1" max="100" 
+                                           th:value="${diffusion.nbDiffusion != null ? diffusion.nbDiffusion : 1}">
+                                    <span class="input-group-text">fois</span>
+                                </div>
+                                <div class="form-text">Nombre de fois que la vidéo sera diffusée (1-100)</div>
+                            </div>
+                        </div>
+                        
+                        <!-- Zone d'information du coût estimé -->
+                        <div class="alert alert-info mb-4">
+                            <h6 class="mb-2">
+                                <i class="bi bi-info-circle"></i> Estimation du Coût
+                            </h6>
+                            <p class="mb-0">
+                                <strong>Calcul :</strong> Nombre de diffusions × Tarif par diffusion de la société
+                            </p>
+                            <p class="mb-0 text-muted">
+                                Le coût total sera calculé automatiquement en fonction de la société sélectionnée et du nombre de diffusions.
+                            </p>
+                        </div>
+                        
+                        <!-- Boutons d'action -->
+                        <div class="d-flex justify-content-between">
+                            <div>
+                                <a href="/admin/diffusions-publicitaires" class="btn btn-secondary">
+                                    <i class="bi bi-x-circle"></i> Annuler
+                                </a>
+                            </div>
+                            <div>
+                                <button type="submit" class="btn btn-success">
+                                    <i class="bi bi-check-circle"></i>
+                                    <span th:if="${diffusion.idDiffusionPubDetails == null}">Créer la Diffusion</span>
+                                    <span th:if="${diffusion.idDiffusionPubDetails != null}">Mettre à Jour</span>
+                                </button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            
+            <!-- Informations complémentaires -->
+            <div class="card mt-4">
+                <div class="card-header">
+                    <h6><i class="bi bi-lightbulb"></i> Aide</h6>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-4">
+                            <h6>📹 Vidéo Publicitaire</h6>
+                            <p class="text-muted small">
+                                Sélectionnez la vidéo publicitaire qui sera diffusée dans le véhicule.
+                            </p>
+                        </div>
+                        <div class="col-md-4">
+                            <h6>🚐 Voyage-Véhicule</h6>
+                            <p class="text-muted small">
+                                Choisissez le véhicule et le voyage pendant lequel la publicité sera diffusée.
+                            </p>
+                        </div>
+                        <div class="col-md-4">
+                            <h6>🔢 Nombre de Diffusions</h6>
+                            <p class="text-muted small">
+                                Indiquez combien de fois la vidéo sera diffusée pendant le voyage.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Script pour améliorer l'expérience utilisateur -->
+        <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const videoSelect = document.getElementById('videoPublicitaire');
+            const voyageVehiculeSelect = document.getElementById('voyageVehicule');
+            const nbDiffusionInput = document.getElementById('nbDiffusion');
+            
+            // Validation en temps réel
+            function validateForm() {
+                const isValid = videoSelect.value && voyageVehiculeSelect.value && nbDiffusionInput.value;
+                const submitBtn = document.querySelector('button[type="submit"]');
+                
+                if (isValid) {
+                    submitBtn.classList.remove('disabled');
+                } else {
+                    submitBtn.classList.add('disabled');
+                }
+            }
+            
+            videoSelect.addEventListener('change', validateForm);
+            voyageVehiculeSelect.addEventListener('change', validateForm);
+            nbDiffusionInput.addEventListener('input', validateForm);
+            
+            // Validation initiale
+            validateForm();
+        });
+        </script>
+    </th:block>
+</body>
+</html>

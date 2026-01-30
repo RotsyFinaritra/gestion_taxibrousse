@@ -25,6 +25,66 @@
                 <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
             </div>
 
+            <!-- Filtres -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="card-title mb-0"><i class="bi bi-funnel"></i> Filtres de recherche</h5>
+                </div>
+                <div class="card-body">
+                    <form method="get" class="row g-3">
+                        <div class="col-md-2">
+                            <label for="id" class="form-label">ID Réservation</label>
+                            <input type="number" class="form-control" id="id" name="id" th:value="${filtreId}">
+                        </div>
+                        <div class="col-md-2">
+                            <label for="dateDebut" class="form-label">Date début</label>
+                            <input type="date" class="form-control" id="dateDebut" name="dateDebut" th:value="${filtreDateDebut}">
+                        </div>
+                        <div class="col-md-2">
+                            <label for="dateFin" class="form-label">Date fin</label>
+                            <input type="date" class="form-control" id="dateFin" name="dateFin" th:value="${filtreDateFin}">
+                        </div>
+                        <div class="col-md-2">
+                            <label for="etat" class="form-label">État</label>
+                            <select class="form-select" id="etat" name="etat">
+                                <option value="">Tous les états</option>
+                                <option value="0" th:selected="${filtreEtat != null and filtreEtat == 0}">En attente</option>
+                                <option value="1" th:selected="${filtreEtat != null and filtreEtat == 1}">Confirmé</option>
+                                <option value="2" th:selected="${filtreEtat != null and filtreEtat == 2}">Annulé</option>
+                            </select>
+                        </div>
+                        <div class="col-md-2">
+                            <label for="clientId" class="form-label">Client</label>
+                            <select class="form-select" id="clientId" name="clientId">
+                                <option value="">Tous les clients</option>
+                                <option th:each="client : ${clients}" 
+                                        th:value="${client.idClient}" 
+                                        th:text="${client.username}"
+                                        th:selected="${filtreClientId != null and filtreClientId == client.idClient}"></option>
+                            </select>
+                        </div>
+                        <div class="col-md-2">
+                            <label for="voyageId" class="form-label">Voyage</label>
+                            <select class="form-select" id="voyageId" name="voyageId">
+                                <option value="">Tous les voyages</option>
+                                <option th:each="vv : ${voyagesVehicules}" 
+                                        th:value="${vv.voyage?.idVoyage}" 
+                                        th:text="${(vv.voyage?.trajet?.gareRoutiereDepart?.ville?.nom ?: 'N/A') + ' → ' + (vv.voyage?.trajet?.gareRoutiereArrivee?.ville?.nom ?: 'N/A')}"
+                                        th:selected="${filtreVoyageId != null and filtreVoyageId == vv.voyage?.idVoyage}"></option>
+                            </select>
+                        </div>
+                        <div class="col-12">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="bi bi-search"></i> Filtrer
+                            </button>
+                            <a href="/admin/reservations" class="btn btn-outline-secondary">
+                                <i class="bi bi-x-circle"></i> Réinitialiser
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
             <div class="card">
                 <div class="card-body">
                     <div class="table-responsive">

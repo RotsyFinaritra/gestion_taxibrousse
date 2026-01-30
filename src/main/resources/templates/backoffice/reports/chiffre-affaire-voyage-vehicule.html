@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" th:replace="~{backoffice/layout :: layout (~{::title}, ~{::content})}">
+<head>
+    <title>Chiffre d'Affaires par Voyage-Véhicule</title>
+</head>
+<body>
+    <th:block th:fragment="content">
+        <div class="container-fluid">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h1><i class="bi bi-graph-up-arrow"></i> Chiffre d'Affaires par Voyage-Véhicule</h1>
+                <a href="/admin/reports" class="btn btn-outline-secondary">
+                    <i class="bi bi-arrow-left"></i> Retour aux rapports
+                </a>
+            </div>
+
+            <!-- Tableau de chiffre d'affaires -->
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title mb-0"><i class="bi bi-table"></i> Détail par voyage-véhicule</h5>
+                </div>
+                <div class="card-body">
+                    <!-- Filtres -->
+                    <form method="get" class="row g-3 mb-3">
+                        <div class="col-md-2">
+                            <label class="form-label">Véhicule</label>
+                            <select name="vehicleId" class="form-select">
+                                <option value="">-- Tous --</option>
+                                <option th:each="vv : ${voyageVehicules}"
+                                        th:value="${vv.idVoyageVehicule}"
+                                        th:selected="${selectedVehicleId != null and selectedVehicleId == vv.idVoyageVehicule}"
+                                        th:text="${vv.vehicule != null ? vv.vehicule.immatriculation : 'Véhicule ' + vv.idVoyageVehicule}"></option>
+                            </select>
+                        </div>
+                        <div class="col-md-2">
+                            <label class="form-label">Immatriculation</label>
+                            <input type="text" name="immatriculation" class="form-control" th:value="${selectedImmatriculation}">
+                        </div>
+                        <div class="col-md-2">
+                            <label class="form-label">Date début</label>
+                            <input type="date" name="dateDebut" class="form-control" th:value="${selectedDateDebut}">
+                        </div>
+                        <div class="col-md-2">
+                            <label class="form-label">Date fin</label>
+                            <input type="date" name="dateFin" class="form-control" th:value="${selectedDateFin}">
+                        </div>
+                        <div class="col-md-2">
+                            <label class="form-label">Heure</label>
+                            <input type="text" name="heure" class="form-control" placeholder="HH:mm" th:value="${selectedHeure}">
+                        </div>
+                        <div class="col-md-2 d-flex align-items-end">
+                            <button class="btn btn-primary me-2" type="submit"><i class="bi bi-search"></i> Filtrer</button>
+                            <a class="btn btn-outline-secondary" th:href="@{/admin/reports/chiffre-affaire-voyage-vehicule}">Réinitialiser</a>
+                        </div>
+                    </form>
+
+                    <div th:if="${chiffreAffaires != null and !chiffreAffaires.empty}" class="table-responsive">
+                        <table class="table table-hover" style="font-size: 1.05rem;">
+                            <thead class="table-dark" style="font-size: 1.1rem;">
+                                <tr>
+                                    <th>Gare Départ</th>
+                                    <th>Gare Arrivée</th>
+                                    <th>Véhicule</th>
+                                    <th>Date Départ</th>
+                                    <th>Heure Départ</th>
+                                    <th class="text-end">
+                                        <a th:href="@{/admin/reports/chiffre-affaire-voyage-vehicule(sortBy='tickets', sortDir=${sortBy=='tickets' and sortDir=='asc' ? 'desc' : 'asc'}, vehicleId=${selectedVehicleId}, immatriculation=${selectedImmatriculation}, date=${selectedDate}, heure=${selectedHeure})}" class="link-light">
+                                            Montant Tickets
+                                            <i th:if="${sortBy=='tickets' and sortDir=='asc'}" class="bi bi-caret-up-fill"></i>
+                                            <i th:if="${sortBy=='tickets' and sortDir=='desc'}" class="bi bi-caret-down-fill"></i>
+                                        </a>
+                                    </th>
+                                    <th class="text-end">
+                                        <a th:href="@{/admin/reports/chiffre-affaire-voyage-vehicule(sortBy='publicite', sortDir=${sortBy=='publicite' and sortDir=='asc' ? 'desc' : 'asc'}, vehicleId=${selectedVehicleId}, immatriculation=${selectedImmatriculation}, date=${selectedDate}, heure=${selectedHeure})}" class="link-light">
+                                            Montant Publicité
+                                            <i th:if="${sortBy=='publicite' and sortDir=='asc'}" class="bi bi-caret-up-fill"></i>
+                                            <i th:if="${sortBy=='publicite' and sortDir=='desc'}" class="bi bi-caret-down-fill"></i>
+                                        </a>
+                                    </th>
+                                    <th class="text-end">
+                                        <a th:href="@{/admin/reports/chiffre-affaire-voyage-vehicule(sortBy='venteProduits', sortDir=${sortBy=='venteProduits' and sortDir=='asc' ? 'desc' : 'asc'}, vehicleId=${selectedVehicleId}, immatriculation=${selectedImmatriculation}, date=${selectedDate}, heure=${selectedHeure})}" class="link-light">
+                                            CA Vente Produits
+                                            <i th:if="${sortBy=='venteProduits' and sortDir=='asc'}" class="bi bi-caret-up-fill"></i>
+                                            <i th:if="${sortBy=='venteProduits' and sortDir=='desc'}" class="bi bi-caret-down-fill"></i>
+                                        </a>
+                                    </th>
+                                    <th class="text-end">Montant Payé Diffusions</th>
+                                    <th class="text-end">Reste à Payer Diffusions</th>
+                                    <th class="text-end">
+                                        <a th:href="@{/admin/reports/chiffre-affaire-voyage-vehicule(sortBy='total', sortDir=${sortBy=='total' and sortDir=='asc' ? 'desc' : 'asc'}, vehicleId=${selectedVehicleId}, immatriculation=${selectedImmatriculation}, date=${selectedDate}, heure=${selectedHeure})}" class="link-light">
+                                            CA Total
+                                            <i th:if="${sortBy=='total' and sortDir=='asc'}" class="bi bi-caret-up-fill"></i>
+                                            <i th:if="${sortBy=='total' and sortDir=='desc'}" class="bi bi-caret-down-fill"></i>
+                                        </a>
+                                    </th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr th:each="ca : ${chiffreAffaires}">
+                                    <td style="font-size: 0.9rem;">
+                                        <span th:text="${ca.gareRoutiereDepart != null and ca.gareRoutiereDepart.ville != null ? ca.gareRoutiereDepart.ville.nom : 'N/A'}"></span>
+                                        <br>
+                                        <small class="text-muted" th:text="${ca.gareRoutiereDepart != null ? ca.gareRoutiereDepart.nom : ''}"></small>
+                                    </td>
+                                    <td style="font-size: 0.9rem;">
+                                        <span th:text="${ca.gareRoutiereArrivee != null and ca.gareRoutiereArrivee.ville != null ? ca.gareRoutiereArrivee.ville.nom : 'N/A'}"></span>
+                                        <br>
+                                        <small class="text-muted" th:text="${ca.gareRoutiereArrivee != null ? ca.gareRoutiereArrivee.nom : ''}"></small>
+                                    </td>
+                                    <td style="font-size: 0.9rem;">
+                                        <strong th:text="${ca.vehicule != null ? (ca.vehicule.marque + ' ' + ca.vehicule.modele) : 'N/A'}"></strong>
+                                        <br>
+                                        <small class="text-muted" th:text="${ca.vehicule != null ? ca.vehicule.immatriculation : ''}"></small>
+                                    </td>
+                                    <td style="font-size: 0.9rem;" th:text="${ca.dateDepart != null ? #temporals.format(ca.dateDepart, 'dd/MM/yyyy') : 'N/A'}"></td>
+                                    <td style="font-size: 0.9rem;" th:text="${ca.heureDepart != null ? ca.heureDepart : 'N/A'}"></td>
+                                    <td class="text-end">
+                                        <span class="badge bg-primary" style="font-size: 0.85rem;" th:text="${#numbers.formatDecimal(ca.montantTickets, 1, 'COMMA', 2, 'POINT')} + ' Ar'"></span>
+                                    </td>
+                                    <td class="text-end">
+                                        <span class="badge bg-info" style="font-size: 0.85rem;" th:text="${#numbers.formatDecimal(ca.montantPublicite, 1, 'COMMA', 2, 'POINT')} + ' Ar'"></span>
+                                    </td>
+                                    <td class="text-end">
+                                        <span class="badge bg-warning text-dark" style="font-size: 0.85rem;" th:text="${#numbers.formatDecimal(ca.montantVenteProduits, 1, 'COMMA', 2, 'POINT')} + ' Ar'"></span>
+                                    </td>
+                                    <td class="text-end">
+                                        <span class="badge bg-success" style="font-size: 0.85rem;" th:text="${#numbers.formatDecimal(ca.montantPayeDiffusions, 1, 'COMMA', 2, 'POINT')} + ' Ar'"></span>
+                                    </td>
+                                    <td class="text-end">
+                                        <span class="badge" style="font-size: 0.85rem;" th:classappend="${ca.resteAPayerDiffusions.compareTo(T(java.math.BigDecimal).ZERO) > 0 ? 'bg-warning text-dark' : 'bg-secondary'}" th:text="${#numbers.formatDecimal(ca.resteAPayerDiffusions, 1, 'COMMA', 2, 'POINT')} + ' Ar'"></span>
+                                    </td>
+                                    <td class="text-end">
+                                        <span class="badge bg-success fw-bold" style="font-size: 0.95rem;" th:text="${#numbers.formatDecimal(ca.montantTotal, 1, 'COMMA', 2, 'POINT')} + ' Ar'"></span>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div th:if="${chiffreAffaires == null or chiffreAffaires.empty}" class="text-center py-4">
+                        <i class="bi bi-inbox display-1 text-muted"></i>
+                        <p class="text-muted mt-2">Aucune donnée trouvée</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Résumé global -->
+            <div class="row mt-4" th:if="${chiffreAffaires != null and !chiffreAffaires.empty}">
+                <div class="col-md-3">
+                    <div class="card text-center border-primary">
+                        <div class="card-body">
+                            <h5 class="card-title text-primary">Total Tickets</h5>
+                            <h3 class="text-primary" th:text="${#numbers.formatDecimal(totalTickets, 1, 'COMMA', 2, 'POINT')} + ' Ar'"></h3>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="card text-center border-info">
+                        <div class="card-body">
+                            <h5 class="card-title text-info">Total Publicité</h5>
+                            <h3 class="text-info" th:text="${#numbers.formatDecimal(totalPublicite, 1, 'COMMA', 2, 'POINT')} + ' Ar'"></h3>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="card text-center border-warning">
+                        <div class="card-body">
+                            <h5 class="card-title text-warning">Total Vente Produits</h5>
+                            <h3 class="text-warning" th:text="${#numbers.formatDecimal(totalVenteProduits, 1, 'COMMA', 2, 'POINT')} + ' Ar'"></h3>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="card text-center border-success">
+                        <div class="card-body">
+                            <h5 class="card-title text-success">CA Total Général</h5>
+                            <h3 class="text-success" th:text="${#numbers.formatDecimal(totalGeneral, 1, 'COMMA', 2, 'POINT')} + ' Ar'"></h3>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </th:block>
+</body>
+</html>

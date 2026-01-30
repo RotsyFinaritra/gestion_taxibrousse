@@ -29,11 +29,11 @@
                         <td th:text="${ville.nom}"></td>
                         <td class="text-end">
                             <a th:href="@{/admin/villes/{id}/edit(id=${ville.idVille})}" 
-                               class="btn btn-sm btn-warning">
+                               class="btn btn-sm btn-outline-primary">
                                 <i class="bi bi-pencil"></i> Modifier
                             </a>
                             <a th:href="@{/admin/villes/{id}/delete(id=${ville.idVille})}" 
-                               class="btn btn-sm btn-danger"
+                               class="btn btn-sm btn-outline-danger"
                                onclick="return confirm('Êtes-vous sûr de vouloir supprimer cette ville ?')">
                                 <i class="bi bi-trash"></i> Supprimer
                             </a>

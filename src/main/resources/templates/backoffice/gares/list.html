@@ -31,11 +31,11 @@
                         <td th:text="${gare.ville?.nom ?: 'N/A'}"></td>
                         <td class="text-end">
                             <a th:href="@{/admin/gares/{id}/edit(id=${gare.idGareRoutiere})}" 
-                               class="btn btn-sm btn-warning">
+                               class="btn btn-sm btn-outline-primary">
                                 <i class="bi bi-pencil"></i> Modifier
                             </a>
                             <a th:href="@{/admin/gares/{id}/delete(id=${gare.idGareRoutiere})}" 
-                               class="btn btn-sm btn-danger"
+                               class="btn btn-sm btn-outline-primary"
                                onclick="return confirm('Êtes-vous sûr de vouloir supprimer cette gare ?')">
                                 <i class="bi bi-trash"></i> Supprimer
                             </a>
